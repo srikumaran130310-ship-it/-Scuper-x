@@ -1,0 +1,32 @@
+{
+  "keys": [
+    {
+      "id": 1,
+      "raw_key": "SCX-RJD6-ZCRE-48DA",
+      "key_hash": "c76b86e12c94e648546724ddf1493622ae43383970dbd7b7b1a784dc45ae4a76",
+      "created_at": "2026-08-24T17:00:23.068Z",
+      "expires_at": "2026-08-24T23:59:59.999Z",
+      "status": "REVOKED",
+      "version": "v1"
+    },
+    {
+      "id": 2,
+      "raw_key": "SCX-PX7U-M4TX-ZZYS",
+      "key_hash": "27a962b3b48357376f368dcd5375787676ee6396972440c040ac8c1621c66179",
+      "created_at": "2026-08-24T17:00:50.254Z",
+      "expires_at": "2026-08-24T23:59:59.999Z",
+      "status": "REVOKED",
+      "version": "v1"
+    },
+    {
+      "id": 3,
+      "raw_key": "SCX-P6NL-PS46-DA8H",
+      "key_hash": "83ac15f30bbe8c33df4d9b6c3647be488fcc78d9a6939194f99e9002ec7013d9",
+      "created_at": "2026-08-24T17:01:11.728Z",
+      "expires_at": "2026-08-24T23:59:59.999Z",
+      "status": "ACTIVE",
+      "version": "v1"
+    }
+  ],
+  "lastId": 3
+}

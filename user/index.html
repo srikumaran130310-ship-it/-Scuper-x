@@ -1,0 +1,3289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>WINGO · AI PREDICTOR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        :root {
+            --bg: #04020a;
+            --card: rgba(10, 10, 25, 0.92);
+            --card2: rgba(5, 5, 15, 0.85);
+            --border: rgba(0, 240, 255, 0.2);
+            --border-red: rgba(220, 38, 38, 0.3);
+            --cyan: #00f0ff;
+            --cyan-glow: rgba(0, 240, 255, 0.45);
+            --purple: #9d4edd;
+            --purple-glow: rgba(157, 78, 221, 0.5);
+            --gold: #ffb703;
+            --gold-glow: rgba(255, 183, 3, 0.5);
+            --red: #ef4444;
+            --red-glow: rgba(239, 68, 68, 0.6);
+            --green: #22c55e;
+            --jackpot: #9d4edd;
+            --text: #e2e0eb;
+            --dim: #737085;
+            --dim2: #585061;
+            --theme-transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        html,
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--text);
+            overflow: hidden;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #particle-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+        }
+
+        ::-webkit-scrollbar {
+            width: 2px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--cyan);
+            border-radius: 2px;
+        }
+
+        /* ─── TELEGRAM GATE (SCREEN 1) ─── */
+        #tgGate {
+            position: fixed;
+            inset: 0;
+            z-index: 20000;
+            background: radial-gradient(ellipse at 50% 30%, #0d091a 0%, #040209 70%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity .6s, transform .6s;
+        }
+        #tgGate.hidden {
+            opacity: 0;
+            transform: scale(1.06);
+            pointer-events: none;
+        }
+        .tgg {
+            background: var(--card);
+            border: 2px solid var(--purple);
+            border-radius: 22px;
+            padding: 32px 22px 28px;
+            max-width: 370px;
+            width: calc(100% - 28px);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 60px var(--purple-glow);
+        }
+        .tgg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(157, 78, 221, .12), transparent 55%);
+            pointer-events: none;
+        }
+        .tgg-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 3px;
+            line-height: 1;
+        }
+        .tgg-logo span {
+            background: linear-gradient(135deg, var(--purple), #df73ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+        }
+        .tgg-sub {
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: var(--dim);
+            text-transform: uppercase;
+            margin: 4px 0 10px;
+            font-weight: 700;
+        }
+        .tgg-sword {
+            font-size: 42px;
+            display: block;
+            margin: 4px 0 10px;
+            filter: drop-shadow(0 0 18px var(--cyan-glow));
+            animation: swordFloat 2.4s ease-in-out infinite;
+        }
+        @keyframes swordFloat {
+            0%,
+            100% {
+                transform: translateY(0) rotate(-4deg);
+            }
+            50% {
+                transform: translateY(-8px) rotate(4deg);
+            }
+        }
+        .tgg-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 28px;
+            letter-spacing: 2px;
+            color: #fff;
+            line-height: 1.2;
+        }
+        .tgg-desc {
+            font-size: 12px;
+            color: var(--dim2);
+            margin: 6px 0 16px;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+        .tgg-divider {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, .06);
+            margin: 14px 0;
+        }
+        .tgg-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+            padding: 6px 0;
+        }
+        .tgg-step-num {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(0, 240, 255, .08);
+            border: 1.5px solid var(--cyan);
+            color: var(--cyan);
+            font-size: 12px;
+            font-weight: 900;
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .tgg-step-txt {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.3;
+        }
+        .tgg-join-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            width: 100%;
+            padding: 14px 16px;
+            margin: 10px 0 8px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #1a8bc0, #0f6a94);
+            border: none;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
+            transition: all .25s;
+            box-shadow: 0 4px 28px rgba(26, 139, 192, .3);
+            cursor: pointer;
+        }
+        .tgg-join-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 36px rgba(26, 139, 192, .4);
+        }
+        .tgg-join-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: #fff;
+            flex-shrink: 0;
+        }
+        .tgg-verify-btn {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: rgba(0, 240, 255, .04);
+            color: var(--cyan);
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all .25s;
+            margin-top: 6px;
+        }
+        .tgg-verify-btn:hover {
+            background: rgba(0, 240, 255, .10);
+            border-color: var(--cyan);
+            box-shadow: 0 0 30px var(--cyan-glow);
+        }
+        .tgg-verify-btn:active {
+            transform: scale(.96);
+        }
+        .tgg-note {
+            font-size: 9px;
+            color: var(--dim2);
+            margin-top: 12px;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        /* ─── LOGIN ─── */
+        #loginGate {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: radial-gradient(ellipse at 50% 30%, #0d091a 0%, #040209 70%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity .6s, transform .6s;
+        }
+        #loginGate.hidden {
+            opacity: 0;
+            transform: scale(1.06);
+            pointer-events: none;
+        }
+        .lg-box {
+            background: var(--card);
+            border: 2px solid var(--cyan);
+            border-radius: 22px;
+            padding: 38px 26px 30px;
+            max-width: 340px;
+            width: calc(100% - 32px);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 60px var(--cyan-glow);
+        }
+        .lg-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(0, 240, 255, .1), transparent 55%);
+            pointer-events: none;
+        }
+        .lg-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 3px;
+            line-height: 1;
+        }
+        .lg-logo span {
+            background: linear-gradient(135deg, var(--purple), #df73ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+        }
+        .lg-sub {
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: var(--dim);
+            text-transform: uppercase;
+            margin: 6px 0 26px;
+            font-weight: 700;
+        }
+        .lg-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, .03);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 6px;
+            transition: all .3s;
+            font-family: 'Inter', sans-serif;
+        }
+        .lg-input:focus {
+            outline: none;
+            border-color: var(--cyan);
+            background: rgba(0, 240, 255, .04);
+            box-shadow: 0 0 25px var(--cyan-glow);
+        }
+        .lg-input::placeholder {
+            color: var(--dim2);
+            font-size: 12px;
+            letter-spacing: 2px;
+            font-weight: 500;
+        }
+        .lg-btn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--cyan), #0066cc);
+            color: #000;
+            cursor: pointer;
+            box-shadow: 0 4px 28px var(--cyan-glow);
+            transition: all .25s;
+            font-family: 'Inter', sans-serif;
+        }
+        .lg-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 36px var(--cyan-glow);
+        }
+        .lg-err {
+            color: var(--red);
+            font-size: 12px;
+            margin-top: 12px;
+            min-height: 18px;
+            font-weight: 600;
+        }
+
+        /* ─── MAIN APP ─── */
+        #mainApp {
+            width: 100%;
+            max-width: 430px;
+            min-height: 100vh;
+            opacity: 0;
+            transform: translateY(18px);
+            transition: all .6s;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            background: radial-gradient(ellipse at 50% 0%, rgba(157, 78, 221, .08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 100%, rgba(0, 240, 255, .05) 0%, transparent 50%),
+                var(--bg);
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+        }
+        #mainApp.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* ─── LIGHTNING BOLTS ─── */
+        .bolt-wrap {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .bolt {
+            position: absolute;
+            top: 0;
+            width: 12px;
+            height: 100%;
+            opacity: 0.25;
+        }
+        .bolt-l {
+            left: 0;
+        }
+        .bolt-r {
+            right: 0;
+            transform: scaleX(-1);
+        }
+        .bolt svg {
+            width: 100%;
+            height: 100%;
+        }
+        .bolt-anim {
+            animation: boltFlash 2.8s infinite;
+        }
+        .bolt-anim2 {
+            animation: boltFlash 2.8s infinite 1.4s;
+        }
+        @keyframes boltFlash {
+            0%,
+            100% {
+                opacity: 0.2;
+            }
+            10%,
+            30% {
+                opacity: 0.9;
+            }
+            20% {
+                opacity: 0.4;
+            }
+            50% {
+                opacity: 0.15;
+            }
+        }
+
+        /* ─── TOP BAR ─── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px 4px;
+            position: relative;
+            z-index: 10;
+            border-bottom: 1px solid var(--border);
+            background: rgba(4, 2, 10, .9);
+            flex-shrink: 0;
+        }
+        .brand {
+            text-align: left;
+        }
+        .brand-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+        .brand-sub {
+            font-size: 7px;
+            font-weight: 700;
+            color: var(--purple);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 1px;
+        }
+        .vip-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(157, 78, 221, .08);
+            border: 1px solid var(--purple);
+            font-size: 8px;
+            font-weight: 700;
+            color: var(--purple);
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        /* ─── TOP TAB BAR (always visible) ─── */
+        .tab-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 4px 8px 8px;
+            background: rgba(4, 2, 10, .85);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+            gap: 2px;
+        }
+        .tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            padding: 4px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all .2s;
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        .tab svg {
+            width: 20px;
+            height: 20px;
+            opacity: .35;
+            transition: all .25s;
+            fill: var(--cyan);
+            stroke: none;
+        }
+        .tab .tl {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 7px;
+            letter-spacing: 1px;
+            color: var(--dim);
+            transition: all .25s;
+            font-weight: 700;
+        }
+        .tab.on svg {
+            opacity: 1;
+            filter: drop-shadow(0 0 5px var(--cyan-glow));
+        }
+        .tab.on .tl {
+            color: var(--cyan);
+        }
+        .tab.on::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: var(--cyan);
+            border-radius: 2px;
+            box-shadow: 0 0 8px var(--cyan-glow);
+        }
+        .tab:active {
+            transform: scale(.92);
+        }
+
+        /* ─── PAGES ─── */
+        .pages {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+            position: relative;
+            z-index: 5;
+        }
+        .page {
+            position: absolute;
+            inset: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 10px 12px 12px;
+            display: none;
+            scrollbar-width: none;
+        }
+        .page::-webkit-scrollbar {
+            display: none;
+        }
+        .page.on {
+            display: block;
+        }
+
+        /* ─── HOME GRID ─── */
+        .home-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .hg-card {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 10px;
+            text-align: center;
+            transition: var(--theme-transition);
+        }
+        .hg-card .hg-num {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 34px;
+            line-height: 1;
+            color: #fff;
+        }
+        .hg-card .hg-lbl {
+            font-size: 8px;
+            font-weight: 700;
+            color: var(--dim);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 2px;
+        }
+        .hg-card.win {
+            border-color: rgba(34, 197, 94, .25);
+            background: rgba(34, 197, 94, .04);
+        }
+        .hg-card.win .hg-num {
+            color: var(--green);
+        }
+        .hg-card.loss {
+            border-color: rgba(220, 38, 38, .25);
+            background: rgba(220, 38, 38, .04);
+        }
+        .hg-card.loss .hg-num {
+            color: var(--red);
+        }
+        .hg-card.jp {
+            border-color: rgba(157, 78, 221, .25);
+            background: rgba(157, 78, 221, .04);
+        }
+        .hg-card.jp .hg-num {
+            color: var(--purple);
+        }
+        .hg-card.rate {
+            border-color: var(--border);
+            background: rgba(0, 240, 255, .04);
+        }
+        .hg-card.rate .hg-num {
+            color: var(--cyan);
+        }
+
+        /* ─── QUICK PRED ─── */
+        .quick-pred {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 14px;
+            text-align: center;
+            margin-bottom: 12px;
+            transition: var(--theme-transition);
+        }
+        .quick-pred .qp-lbl {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .quick-pred .qp-word {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 58px;
+            line-height: 1.1;
+            margin: 4px 0 2px;
+        }
+        .quick-pred .qp-word.big {
+            color: var(--cyan);
+            text-shadow: 0 0 30px var(--cyan-glow);
+        }
+        .quick-pred .qp-word.small {
+            color: var(--purple);
+            text-shadow: 0 0 30px var(--purple-glow);
+        }
+        .quick-pred .qp-word.scan {
+            color: var(--dim);
+            font-size: 34px;
+            animation: scanPulse 1.2s infinite alternate;
+        }
+        @keyframes scanPulse {
+            0% {
+                opacity: .3;
+            }
+            100% {
+                opacity: .8;
+            }
+        }
+        .quick-pred .qp-nums {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--dim);
+            letter-spacing: 2px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .quick-pred .qp-nums b {
+            color: var(--gold);
+        }
+
+        /* ─── HOME ACTIONS ─── */
+        .home-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .ha-btn {
+            padding: 12px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: var(--card2);
+            color: var(--text);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all .2s;
+            text-decoration: none;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .ha-btn:hover {
+            border-color: var(--cyan);
+            background: rgba(0, 240, 255, .06);
+        }
+
+        /* ─── PREDICTION PAGE ─── */
+        .pred-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .pred-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--cyan);
+            text-shadow: 0 0 18px var(--cyan-glow);
+            letter-spacing: 4px;
+            text-align: center;
+        }
+
+        .period-box {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: var(--theme-transition);
+        }
+        .pb-lbl {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--dim);
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .pb-val {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--cyan);
+            letter-spacing: .5px;
+        }
+        .pb-copy {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: rgba(0, 240, 255, .06);
+            color: var(--cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all .2s;
+            font-size: 14px;
+        }
+        .pb-copy:hover {
+            background: rgba(0, 240, 255, .15);
+        }
+
+        /* ─── TIMER ─── */
+        .timer-wrap {
+            display: flex;
+            justify-content: center;
+            padding: 6px 0;
+        }
+        .timer-outer {
+            position: relative;
+            width: 148px;
+            height: 148px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .t-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        .t-track {
+            fill: none;
+            stroke: rgba(255, 255, 255, .04);
+            stroke-width: 5;
+        }
+        .t-arc {
+            fill: none;
+            stroke: var(--cyan);
+            stroke-width: 5;
+            stroke-linecap: round;
+            stroke-dasharray: 377;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset .9s linear;
+            filter: drop-shadow(0 0 6px var(--cyan-glow));
+        }
+        .timer-coin {
+            width: 112px;
+            height: 112px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 38% 35%, #0e0d1d, #04020a);
+            border: 2px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, .6);
+        }
+        .t-num {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 40px;
+            color: #fff;
+            line-height: 1;
+        }
+        .t-unit {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .t-spin {
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: rgba(255, 200, 0, 0.3);
+            border-right-color: rgba(0, 200, 255, 0.2);
+            animation: tspin 4s linear infinite;
+        }
+        @keyframes tspin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ─── PRED AREA ─── */
+        .pred-area {
+            text-align: center;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.01);
+            border-radius: 16px;
+            border: 1px dashed var(--border);
+        }
+        .pred-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--dim);
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .pred-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--cyan);
+            box-shadow: 0 0 8px var(--cyan-glow);
+            animation: dotBlink 1.2s infinite alternate;
+        }
+        @keyframes dotBlink {
+            0% {
+                opacity: .3;
+                transform: scale(.85);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1.1);
+            }
+        }
+        .pred-word {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 92px;
+            line-height: 1;
+            letter-spacing: 4px;
+            display: block;
+            transition: all .35s;
+        }
+        .pred-word.big {
+            color: var(--cyan);
+            text-shadow: 0 0 40px var(--cyan-glow), 0 4px 0 rgba(0, 100, 200, .3);
+        }
+        .pred-word.small {
+            color: var(--purple);
+            text-shadow: 0 0 40px var(--purple-glow), 0 4px 0 rgba(80, 0, 120, .3);
+        }
+        .pred-word.scan {
+            color: var(--dim);
+            font-size: 44px;
+            animation: scanPulse 1.2s infinite alternate;
+        }
+        .pred-nums {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--dim);
+            letter-spacing: 2px;
+            margin-top: 6px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .pred-nums b {
+            color: var(--gold);
+        }
+
+        /* ─── CONFIDENCE ─── */
+        .conf-block {
+            margin: 8px 0 0;
+        }
+        .conf-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .conf-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .conf-pct {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--cyan);
+        }
+        .conf-bg {
+            height: 7px;
+            border-radius: 3.5px;
+            background: rgba(255, 255, 255, .04);
+            overflow: hidden;
+        }
+        .conf-fill {
+            height: 100%;
+            border-radius: 3.5px;
+            background: linear-gradient(90deg, var(--purple), var(--cyan), var(--gold));
+            box-shadow: 0 0 8px var(--cyan-glow);
+            transition: width .5s ease;
+        }
+
+        .ai-bar {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 7px;
+            padding: 7px 10px;
+            background: var(--card2);
+            border-radius: 9px;
+            border: 1px solid rgba(255, 255, 255, .04);
+        }
+        .ai-icon {
+            font-size: 16px;
+        }
+        .ai-txt {
+            font-size: 9px;
+            color: var(--dim2);
+            font-weight: 700;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* ─── COPY ─── */
+        .copy-wrap {
+            margin: 8px 0 0;
+        }
+        .copy-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 11px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: 'Inter', sans-serif;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+        }
+        .copy-btn.idle {
+            background: rgba(255, 255, 255, .02);
+            border: 1.5px solid var(--border);
+            color: var(--dim);
+        }
+        .copy-btn.done {
+            background: rgba(34, 197, 94, .08);
+            border: 1.5px solid rgba(34, 197, 94, .25);
+            color: var(--green);
+            box-shadow: 0 0 16px rgba(34, 197, 94, .08);
+        }
+        .copy-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .tg-wrap {
+            margin: 7px 0 0;
+        }
+        .tg-a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            width: 100%;
+            padding: 12px;
+            border-radius: 11px;
+            background: rgba(32, 160, 217, .06);
+            border: 1.5px solid rgba(32, 160, 217, .15);
+            color: #34b4eb;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
+            transition: all .2s;
+        }
+        .tg-a:hover {
+            background: rgba(32, 160, 217, .12);
+        }
+        .tg-a svg {
+            width: 16px;
+            height: 16px;
+            fill: #34b4eb;
+        }
+
+        /* ─── HISTORY ─── */
+        .home-hist {
+            margin: 10px 0 0;
+        }
+        .sec-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 7px;
+        }
+        .sec-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .sec-title svg {
+            width: 14px;
+            height: 14px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .sec-clr {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--dim);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: color .2s;
+        }
+        .sec-clr:hover {
+            color: #ef4444;
+        }
+        .htw {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: var(--theme-transition);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        thead th {
+            padding: 8px 6px;
+            font-size: 8px;
+            font-weight: 700;
+            color: var(--dim);
+            letter-spacing: 1.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+            background: rgba(255, 255, 255, .01);
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+        }
+        tbody td {
+            padding: 10px 6px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, .02);
+            color: var(--text);
+            font-weight: 600;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .lvl-tag {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 18px;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+            color: var(--cyan);
+            font-size: 8px;
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .pc-big {
+            color: var(--cyan);
+            font-weight: 800;
+            font-size: 13px;
+        }
+        .pc-small {
+            color: var(--purple);
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .res-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .r-win {
+            color: var(--green);
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: .5px;
+        }
+        .r-loss {
+            color: var(--red);
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .r-jp {
+            color: var(--gold);
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: .5px;
+            animation: jpShine 1.3s infinite alternate;
+        }
+        @keyframes jpShine {
+            0% {
+                text-shadow: 0 0 4px var(--gold-glow);
+            }
+            100% {
+                text-shadow: 0 0 14px var(--gold-glow);
+            }
+        }
+
+        /* ─── ICONS ─── */
+        .sl-win-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+        }
+        .sl-win-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 6px rgba(34, 197, 94, .6));
+        }
+        .sl-jp-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+        .sl-jp-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 8px var(--gold-glow));
+        }
+        .sl-loss-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+        }
+        .sl-loss-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 6px var(--red-glow));
+        }
+
+        /* ─── STATS ─── */
+        .stats-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .big-stat {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 20px 16px;
+            text-align: center;
+            border: 1.5px solid var(--border);
+            transition: var(--theme-transition);
+        }
+        .big-stat.bw {
+            border-color: rgba(34, 197, 94, 0.2);
+            background: rgba(34, 197, 94, .04);
+        }
+        .big-stat.bl {
+            border-color: rgba(220, 38, 38, 0.2);
+            background: rgba(220, 38, 38, .04);
+        }
+        .bs-lbl {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .bs-num {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 56px;
+            line-height: 1;
+        }
+        .bw .bs-num {
+            color: var(--green);
+            text-shadow: 0 0 30px rgba(34, 197, 94, .3);
+        }
+        .bl .bs-num {
+            color: var(--red);
+            text-shadow: 0 0 30px rgba(239, 68, 68, .2);
+        }
+        .wr-card {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 14px;
+            transition: var(--theme-transition);
+        }
+        .wr-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .wr-lbl {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .wr-pct {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 26px;
+            color: var(--cyan);
+        }
+        .wr-bg {
+            height: 9px;
+            border-radius: 4.5px;
+            background: rgba(255, 255, 255, .04);
+            overflow: hidden;
+        }
+        .wr-fill {
+            height: 100%;
+            border-radius: 4.5px;
+            background: linear-gradient(90deg, var(--purple), var(--cyan), var(--gold));
+            box-shadow: 0 0 10px var(--cyan-glow);
+            transition: width .5s;
+        }
+
+        .sm3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        .sm3c {
+            background: var(--card);
+            border: 1px solid rgba(255, 255, 255, .04);
+            border-radius: 12px;
+            padding: 14px 8px;
+            text-align: center;
+            transition: var(--theme-transition);
+        }
+        .sm3c svg {
+            width: 22px;
+            height: 22px;
+            display: block;
+            margin: 0 auto 3px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .sm3c .sn {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 28px;
+            line-height: 1;
+        }
+        .sm3c .sl {
+            font-size: 8px;
+            font-weight: 700;
+            color: var(--dim);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-top: 1px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* ─── PROFILE ─── */
+        .pf-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .pf-hero {
+            background: linear-gradient(135deg, #0f0b24, var(--card));
+            border: 1.5px solid var(--border);
+            border-radius: 18px;
+            padding: 26px 18px;
+            text-align: center;
+            transition: var(--theme-transition);
+        }
+        .pf-av {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            background: linear-gradient(135deg, var(--purple), var(--cyan));
+            border: 3px solid var(--cyan);
+            box-shadow: 0 0 28px var(--cyan-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+        }
+        .pf-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 3px;
+        }
+        .pf-rank {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--cyan);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 3px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .pf-badges {
+            display: flex;
+            justify-content: center;
+            gap: 7px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .pb2 {
+            padding: 5px 12px;
+            border-radius: 18px;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .pb2.g {
+            background: rgba(255, 183, 3, .08);
+            border: 1px solid rgba(255, 183, 3, .3);
+            color: var(--gold);
+        }
+        .pb2.r {
+            background: rgba(200, 24, 26, .08);
+            border: 1px solid rgba(200, 24, 26, .3);
+            color: var(--red);
+        }
+        .pb2.c {
+            background: rgba(0, 240, 255, .08);
+            border: 1px solid rgba(0, 240, 255, .3);
+            color: var(--cyan);
+        }
+
+        .pf-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+        }
+        .pgc {
+            background: var(--card);
+            border: 1px solid rgba(255, 255, 255, .04);
+            border-radius: 12px;
+            padding: 15px 10px;
+            text-align: center;
+            transition: var(--theme-transition);
+        }
+        .pgc .pgn {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 30px;
+            line-height: 1;
+            color: #fff;
+        }
+        .pgc .pgl {
+            font-size: 8px;
+            font-weight: 700;
+            color: var(--dim);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-top: 2px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 13px;
+            border-radius: 12px;
+            border: 1.5px solid rgba(239, 68, 68, .2);
+            background: rgba(239, 68, 68, .05);
+            color: #ef4444;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all .2s;
+        }
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, .12);
+            border-color: rgba(239, 68, 68, .4);
+        }
+
+        /* ─── THEME PICKER ─── */
+        .theme-panel {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            transition: var(--theme-transition);
+        }
+        .tp-label {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .tp-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        .tp-swatch {
+            width: 100%;
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            border: 2.5px solid rgba(255, 255, 255, .08);
+            cursor: pointer;
+            transition: all .25s;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
+        }
+        .tp-swatch:hover {
+            transform: scale(1.1);
+            border-color: rgba(255, 255, 255, .25);
+        }
+        .tp-swatch.active {
+            border-color: #fff;
+            box-shadow: 0 0 16px rgba(255, 255, 255, .2), 0 0 0 3px rgba(255, 255, 255, .06);
+            transform: scale(1.05);
+        }
+        .tp-swatch.active::after {
+            content: '✓';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 900;
+            text-shadow: 0 0 8px rgba(0, 0, 0, .6);
+        }
+
+        /* ─── RESULT OVERLAY ─── */
+        .result-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .result-overlay.show {
+            display: flex;
+        }
+        .res-card {
+            width: 280px;
+            border-radius: 20px;
+            text-align: center;
+            padding: 32px 20px;
+            position: relative;
+            overflow: hidden;
+            animation: popIn .35s cubic-bezier(.34, 1.56, .64, 1);
+        }
+        @keyframes popIn {
+            from {
+                transform: scale(0.6);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .res-win-card {
+            background: linear-gradient(160deg, #001830, #00081a);
+            border: 2px solid rgba(0, 200, 255, 0.5);
+            box-shadow: 0 0 40px rgba(0, 200, 255, 0.3);
+        }
+        .res-loss-card {
+            background: linear-gradient(160deg, #1a0005, #0a0003);
+            border: 2px solid rgba(255, 40, 60, 0.5);
+            box-shadow: 0 0 40px rgba(255, 40, 60, 0.25);
+        }
+        .res-jack-card {
+            background: linear-gradient(160deg, #12003a, #060020);
+            border: 2px solid rgba(180, 100, 255, 0.55);
+            box-shadow: 0 0 40px rgba(180, 100, 255, 0.35);
+        }
+        .res-icon {
+            font-size: 64px;
+            line-height: 1;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .res-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 56px;
+            letter-spacing: 4px;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .res-win-card .res-title {
+            color: var(--green);
+            text-shadow: 0 0 20px rgba(0, 230, 118, 0.6);
+        }
+        .res-loss-card .res-title {
+            color: var(--red);
+            text-shadow: 0 0 20px rgba(255, 40, 60, 0.6);
+        }
+        .res-jack-card .res-title {
+            background: linear-gradient(135deg, #c77dff, #ff9ef8, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: none;
+            filter: drop-shadow(0 0 15px rgba(200, 120, 255, 0.6));
+        }
+        .res-sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 2px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .res-close {
+            margin-top: 18px;
+            display: inline-block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 6px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .res-close:hover {
+            background: rgba(255, 255, 255, .05);
+        }
+
+        /* ─── CONFETTI ─── */
+        #cc {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9997;
+            overflow: hidden;
+        }
+        .cp {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            opacity: 0;
+            animation: cf linear forwards;
+        }
+        @keyframes cf {
+            0% {
+                opacity: 1;
+                transform: translateY(-20px) rotate(0deg) scale(.6);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(720deg) scale(1.1);
+            }
+        }
+
+        .wglow {
+            animation: wg .7s ease 3;
+        }
+        @keyframes wg {
+            0%,
+            100% {
+                text-shadow: inherit;
+            }
+            50% {
+                color: var(--gold) !important;
+                text-shadow: 0 0 40px rgba(255, 183, 3, .7), 0 0 80px rgba(255, 183, 3, .25) !important;
+            }
+        }
+
+        @media(max-width:380px) {
+            .pred-word.big,
+            .pred-word.small {
+                font-size: 72px;
+            }
+            .quick-pred .qp-word {
+                font-size: 46px;
+            }
+            .timer-outer {
+                width: 130px;
+                height: 130px;
+            }
+            .timer-coin {
+                width: 98px;
+                height: 98px;
+            }
+            .t-num {
+                font-size: 34px;
+            }
+            .brand-name {
+                font-size: 15px;
+            }
+            .home-grid {
+                gap: 6px;
+            }
+            .hg-card .hg-num {
+                font-size: 28px;
+            }
+            .tp-grid {
+                gap: 6px;
+            }
+            .tab svg {
+                width: 17px;
+                height: 17px;
+            }
+            .tab .tl {
+                font-size: 6px;
+            }
+            .tab {
+                padding: 3px 4px;
+            }
+            .vip-badge {
+                font-size: 7px;
+                padding: 2px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ─── CONFETTI ─── -->
+    <div id="cc"></div>
+
+    <!-- ─── PARTICLES ─── -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- ─── LIGHTNING BOLTS ─── -->
+    <div class="bolt-wrap">
+        <div class="bolt bolt-l">
+            <svg viewBox="0 0 14 800" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="blg" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="var(--cyan)" stop-opacity="0"/>
+                        <stop offset="20%" stop-color="var(--cyan)" stop-opacity="0.8"/>
+                        <stop offset="50%" stop-color="var(--purple)" stop-opacity="0.5"/>
+                        <stop offset="80%" stop-color="var(--cyan)" stop-opacity="0.3"/>
+                        <stop offset="100%" stop-color="var(--cyan)" stop-opacity="0"/>
+                    </linearGradient>
+                </defs>
+                <polyline class="bolt-anim" points="7,0 3,120 9,120 2,280 10,280 1,450 11,450 4,600 8,600 5,800"
+                    fill="none" stroke="url(#blg)" stroke-width="2" stroke-linejoin="round"/>
+                <polyline class="bolt-anim2" points="7,50 4,180 10,180 3,340 9,340 2,500 10,500 5,700"
+                    fill="none" stroke="rgba(0,200,255,0.25)" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <div class="bolt bolt-r">
+            <svg viewBox="0 0 14 800" preserveAspectRatio="none">
+                <polyline class="bolt-anim" points="7,0 11,120 5,120 12,280 4,280 13,450 3,450 10,600 6,600 9,800"
+                    fill="none" stroke="url(#blg)" stroke-width="2" stroke-linejoin="round"/>
+                <polyline class="bolt-anim2" points="7,80 10,200 4,200 11,360 3,360 12,520 4,520 9,700"
+                    fill="none" stroke="rgba(0,200,255,0.25)" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- ════════ TELEGRAM GATE (SCREEN 1) ════════ -->
+    <div id="tgGate">
+        <div class="tgg">
+            <div class="tgg-logo">WINGO <span>WIN</span></div>
+            <div class="tgg-sub">⚔ PRO · PREDICTOR ⚔</div>
+            <span class="tgg-sword">🚀</span>
+            <div class="tgg-title">Join Our Telegram Channel</div>
+            <div class="tgg-desc">Exclusive VIP predictions, tips &amp; winning strategies — join free!</div>
+            <hr class="tgg-divider" />
+            <div class="tgg-step">
+                <div class="tgg-step-num">1</div>
+                <div class="tgg-step-txt">Click below to join our Telegram channel</div>
+            </div>
+            <div class="tgg-step">
+                <div class="tgg-step-num">2</div>
+                <div class="tgg-step-txt">Come back here &amp; tap Verify to unlock access</div>
+            </div>
+            <hr class="tgg-divider" />
+            <a class="tgg-join-btn" id="tgJoinBtn" href="https://t.me/dailyedgemembers" target="_blank" onclick="onTgJoin()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+                JOIN TELEGRAM CHANNEL
+            </a>
+            <button class="tgg-verify-btn" id="tgVerifyBtn" onclick="onTgVerify()">✦ VERIFY &amp; CONTINUE</button>
+            <div class="tgg-note">Already a member? Tap Verify to continue →</div>
+        </div>
+    </div>
+
+    <!-- ─── LOGIN ─── -->
+    <div id="loginGate">
+        <div class="lg-box">
+            <div class="lg-logo">WINGO <span>PREDICTOR</span></div>
+            <div class="lg-sub">⚡ S-RANK PREDICTOR SYSTEM ⚡</div>
+            <input class="lg-input" id="kInp" type="text" placeholder="ENTER SECRET KEY" maxlength="20" autocomplete="off" spellcheck="false">
+            <button class="lg-btn" id="lBtn">⚔ DETECT PORTAL ⚔</button>
+            <div class="lg-err" id="lErr"></div>
+        </div>
+    </div>
+
+    <!-- ─── RESULT OVERLAY ─── -->
+    <div class="result-overlay" id="resOverlay">
+        <div class="res-card" id="resCard">
+            <span class="res-icon" id="resIcon">⚡</span>
+            <div class="res-title" id="resTitle">WIN</div>
+            <div class="res-sub" id="resSub">PREDICTION CORRECT</div>
+            <div class="res-close" onclick="document.getElementById('resOverlay').classList.remove('show')">TAP TO CLOSE</div>
+        </div>
+    </div>
+
+    <!-- ─── MAIN APP ─── -->
+    <div id="mainApp">
+
+        <svg width="0" height="0" style="position:absolute">
+            <defs>
+                <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="var(--purple)" />
+                    <stop offset="100%" stop-color="var(--cyan)" />
+                </linearGradient>
+            </defs>
+        </svg>
+
+        <!-- ─── TOP BAR ─── -->
+        <div class="topbar">
+            <div class="brand">
+                <div class="brand-name">WINGO PREDICTOR</div>
+                <div class="brand-sub">⚡ SYSTEM ACTIVATE ⚡</div>
+            </div>
+            <div class="vip-badge">⚔ S-RANK</div>
+        </div>
+
+        <!-- ─── TOP TAB BAR (always visible) ─── -->
+        <div class="tab-bar">
+            <div class="tab on" id="tab-home" onclick="goTab('home')">
+                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                <span class="tl">HOME</span>
+            </div>
+            <div class="tab" id="tab-prediction" onclick="goTab('prediction')">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                <span class="tl">PREDICT</span>
+            </div>
+            <div class="tab" id="tab-history" onclick="goTab('history')">
+                <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/></svg>
+                <span class="tl">HISTORY</span>
+            </div>
+            <div class="tab" id="tab-stats" onclick="goTab('stats')">
+                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                <span class="tl">STATUS</span>
+            </div>
+            <div class="tab" id="tab-profile" onclick="goTab('profile')">
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <span class="tl">PROFILE</span>
+            </div>
+        </div>
+
+        <!-- ═══ PAGES ═══ -->
+        <div class="pages">
+
+            <!-- ─── HOME ─── -->
+            <div class="page on" id="pg-home">
+                <div class="home-grid">
+                    <div class="hg-card win">
+                        <div class="hg-num" id="hgw">0</div>
+                        <div class="hg-lbl">🏆 WINNING</div>
+                    </div>
+                    <div class="hg-card loss">
+                        <div class="hg-num" id="hgl">0</div>
+                        <div class="hg-lbl">💀 LOSING</div>
+                    </div>
+                    <div class="hg-card jp">
+                        <div class="hg-num" id="hgj">0</div>
+                        <div class="hg-lbl">🔥 JACKPOT</div>
+                    </div>
+                    <div class="hg-card rate">
+                        <div class="hg-num" id="hgr">0%</div>
+                        <div class="hg-lbl">📈 RATINGS</div>
+                    </div>
+                </div>
+
+                <div class="quick-pred">
+                    <div class="qp-lbl">🔮 SYSTEM PREDICTION</div>
+                    <div class="qp-word scan" id="qpWord">SCANNING</div>
+                    <div class="qp-nums" id="qpNums">🎯 TERGET NUM: <b>—</b></div>
+                </div>
+
+                <div class="home-actions">
+                    <a class="ha-btn" onclick="goTab('prediction')">⚔ Portal Predictor</a>
+                    <a class="ha-btn" onclick="goTab('history')">📜 Raid Logs</a>
+                    <a class="ha-btn" onclick="goTab('stats')">📊 Hunter Stats</a>
+                    <a class="ha-btn" onclick="goTab('profile')">🥷 Alignment</a>
+                </div>
+
+                <div class="home-hist">
+                    <div class="sec-head">
+                        <div class="sec-title">
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            ACTIVE LOGS
+                        </div>
+                        <button class="sec-clr" onclick="clearHistory()">✕ CLEAR</button>
+                    </div>
+                    <div class="htw">
+                        <table>
+                            <thead><tr><th>PERIOD</th><th>LVL</th><th>SIZE</th><th>NUM</th><th>ACTUAL</th></tr></thead>
+                            <tbody id="hBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── PREDICTION ─── -->
+            <div class="page" id="pg-prediction">
+                <div class="pred-wrap">
+                    <div class="pred-title">⚔ REAL DETECTOR ⚔</div>
+                    <div class="period-box">
+                        <div>
+                            <div class="pb-lbl">TARGET GATE:</div>
+                            <div class="pb-val" id="periodVal">——————————</div>
+                        </div>
+                        <div class="pb-copy" onclick="copyPeriod()">📋</div>
+                    </div>
+
+                    <div class="timer-wrap">
+                        <div class="timer-outer">
+                            <div class="t-spin"></div>
+                            <svg class="t-svg" viewBox="0 0 148 148">
+                                <circle class="t-track" cx="74" cy="74" r="60"/>
+                                <circle class="t-arc" id="tArc" cx="74" cy="74" r="60"/>
+                            </svg>
+                            <div class="timer-coin">
+                                <div class="t-num" id="tVal">60s</div>
+                                <div class="t-unit">PREDICTOR</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pred-area">
+                        <div class="pred-label">
+                            <span class="pred-dot"></span>
+                            🔮 SYSTEM PREDICTION
+                            <span class="pred-dot"></span>
+                        </div>
+                        <span class="pred-word scan" id="pWord">SCANNING</span>
+                        <div class="pred-nums" id="pNums">🎯 TERGET NUM: <b>—</b></div>
+                    </div>
+
+                    <div class="conf-block">
+                        <div class="conf-top">
+                            <span class="conf-lbl">SYSTEM CONFIDENCE</span>
+                            <span class="conf-pct" id="confPct">0%</span>
+                        </div>
+                        <div class="conf-bg"><div class="conf-fill" id="confFill" style="width:0%"></div></div>
+                        <div class="ai-bar">
+                            <span class="ai-icon">🧠</span>
+                            <span class="ai-txt">AI WEIGHTED ANALYSIS · 5 RECENT ROUNDS</span>
+                        </div>
+                    </div>
+
+                    <div class="copy-wrap">
+                        <button class="copy-btn idle" id="cpBtn" onclick="copyPrediction()">
+                            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                            COPY HUNTER CODES
+                        </button>
+                    </div>
+
+                    <div class="tg-wrap">
+                        <a class="tg-a" href="https://t.me/dailyedgemembers" target="_blank">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/>
+                            </svg>
+                            JOIN MY TELEGRAM CHANNEL
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── HISTORY ─── -->
+            <div class="page" id="pg-history">
+                <div style="display:flex;flex-direction:column;gap:12px;">
+                    <div class="pred-title">📜 RAID LOG DETAILS</div>
+                    <div class="sec-head">
+                        <div class="sec-title">
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            ALL RECORDS
+                        </div>
+                        <button class="sec-clr" onclick="clearHistory()">✕ PURGE</button>
+                    </div>
+                    <div class="htw">
+                        <table>
+                            <thead><tr><th>PORTAL</th><th>LVL</th><th>DECISION</th><th>CORES</th><th>OUTCOME</th></tr></thead>
+                            <tbody id="hBody2"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── STATS ─── -->
+            <div class="page" id="pg-stats">
+                <div class="stats-wrap">
+                    <div class="pred-title">📊 RAID STATS ANALYSIS</div>
+                    <div class="big-stat bw">
+                        <div class="bs-lbl">PORTALS CLEARED (WINS)</div>
+                        <div class="bs-num" id="s-wins">0</div>
+                    </div>
+                    <div class="big-stat bl">
+                        <div class="bs-lbl">HUNTER DEATHS (LOSS)</div>
+                        <div class="bs-num" id="s-losses">0</div>
+                    </div>
+                    <div class="wr-card">
+                        <div class="wr-head">
+                            <div class="wr-lbl">MISSION SUCCESS RATE</div>
+                            <div class="wr-pct" id="s-rate">0%</div>
+                        </div>
+                        <div class="wr-bg"><div class="wr-fill" id="s-rbar" style="width:0%"></div></div>
+                    </div>
+                    <div class="sm3">
+                        <div class="sm3c" style="border-color:rgba(245,158,11,.18);background:rgba(245,158,11,.04)">
+                            <svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="rgba(245,158,11,0.15)" stroke="var(--gold)" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                            <div class="sn" style="color:var(--gold)" id="s-jps">0</div>
+                            <div class="sl">JACKPOT</div>
+                        </div>
+                        <div class="sm3c" style="border-color:rgba(129,140,248,.15);background:rgba(129,140,248,.04)">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+                            <div class="sn" style="color:#818cf8" id="s-total">0</div>
+                            <div class="sl">TOTAL</div>
+                        </div>
+                        <div class="sm3c" style="border-color:rgba(34,197,94,.15);background:rgba(34,197,94,.04)">
+                            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                            <div class="sn" style="color:var(--green)" id="s-streak">0</div>
+                            <div class="sl">STREAK</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── PROFILE ─── -->
+            <div class="page" id="pg-profile">
+                <div class="pf-wrap">
+                    <div class="pf-hero">
+                        <div class="pf-av">🥷</div>
+                        <div class="pf-name">REAL TREDER</div>
+                        <div class="pf-rank">🔥 POWERED REAL· LEVEL MAX</div>
+                        <div class="pf-badges">
+                            <span class="pb2 g">👑 TOP-RANK</span>
+                            <span class="pb2 r">⚠️ OWN RISK</span>
+                            <span class="pb2 c">🏯 LEVEL 3/4</span>
+                        </div>
+                    </div>
+
+                    <!-- ─── THEME PICKER ─── -->
+                    <div class="theme-panel">
+                        <div class="tp-label">🎨 SYSTEM ALIGNMENT THEMES</div>
+                        <div class="tp-grid" id="themeGrid"></div>
+                    </div>
+
+                    <div class="pf-grid">
+                        <div class="pgc"><div class="pgn" id="pf-wins">0</div><div class="pgl">CLEARED</div></div>
+                        <div class="pgc"><div class="pgn" id="pf-losses">0</div><div class="pgl">FAILED</div></div>
+                        <div class="pgc"><div class="pgn" id="pf-rate">0%</div><div class="pgl">SUCCESS</div></div>
+                        <div class="pgc"><div class="pgn" id="pf-rounds">0</div><div class="pgl">TOTAL</div></div>
+                    </div>
+
+                    <button class="logout-btn" onclick="logout()">✕ LOGOUT</button>
+                </div>
+            </div>
+
+        </div><!-- /pages -->
+
+    </div><!-- /mainApp -->
+
+    <script>
+        // ═══════════════════════════════════════════
+        //  TELEGRAM GATE LOGIC
+        // ═══════════════════════════════════════════
+        function onTgJoin() {
+            localStorage.setItem('tg_clicked_join', 'true');
+        }
+
+        function onTgVerify() {
+            const gate = document.getElementById('tgGate');
+            const login = document.getElementById('loginGate');
+
+            localStorage.setItem('tg_verified', 'true');
+
+            gate.classList.add('hidden');
+
+            setTimeout(() => {
+                login.classList.remove('hidden');
+                document.getElementById('kInp').focus();
+            }, 400);
+
+            try {
+                playTone(880, 0.08, 'sine', 0.08);
+                setTimeout(() => playTone(1100, 0.10, 'sine', 0.08), 100);
+            } catch (e) {}
+        }
+
+        (function checkTgVerification() {
+            const verified = localStorage.getItem('tg_verified');
+            if (verified === 'true') {
+                document.getElementById('tgGate').classList.add('hidden');
+                document.getElementById('loginGate').classList.remove('hidden');
+                setTimeout(() => document.getElementById('kInp').focus(), 300);
+            }
+        })();
+
+        // ═══════════════════════════════════════════
+        //  PARTICLES
+        // ═══════════════════════════════════════════
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let pColor = '#00f0ff';
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2.5 + 0.5;
+                this.speedY = -(Math.random() * 1.5 + 0.5);
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.6 + 0.2;
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                if (this.y < 0) { this.y = canvas.height;
+                    this.x = Math.random() * canvas.width; }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = pColor;
+                ctx.globalAlpha = this.opacity;
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 45; i++) particles.push(new Particle());
+        }
+        initParticles();
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update();
+                p.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // ═══════════════════════════════════════════
+        //  THEMES — 10 Friends / Solo Leveling
+        // ═══════════════════════════════════════════
+        const THEMES = [
+            { name: 'Arise Blue', c: '#00f0ff', p: '#9d4edd', g: '#ffb703', bg: '#04020a' },
+            { name: 'Shadow Purple', c: '#9d4edd', p: '#6c2bd9', g: '#ffb703', bg: '#06010f' },
+            { name: 'Blood Lust', c: '#ef4444', p: '#b91c1c', g: '#f59e0b', bg: '#080101' },
+            { name: 'SSS Gold', c: '#ffb703', p: '#f59e0b', g: '#fcd34d', bg: '#0a0801' },
+            { name: 'White Tiger', c: '#14b8a6', p: '#0d9488', g: '#eab308', bg: '#020708' },
+            { name: "Ruler's Light", c: '#3b82f6', p: '#1d4ed8', g: '#fbbf24', bg: '#050a0f' },
+            { name: 'Necro Void', c: '#22c55e', p: '#16a34a', g: '#f59e0b', bg: '#010803' },
+            { name: 'Demon Castle', c: '#f97316', p: '#ea580c', g: '#fbbf24', bg: '#0a0301' },
+            { name: 'Ice Monarch', c: '#60a5fa', p: '#3b82f6', g: '#fcd34d', bg: '#090d16' },
+            { name: 'Stealth Gray', c: '#9ca3af', p: '#6b7280', g: '#d1d5db', bg: '#050505' }
+        ];
+
+        function applyTheme(idx) {
+            const t = THEMES[idx];
+            if (!t) return;
+            const root = document.documentElement;
+            root.style.setProperty('--cyan', t.c);
+            root.style.setProperty('--purple', t.p);
+            root.style.setProperty('--gold', t.g);
+            root.style.setProperty('--bg', t.bg);
+            root.style.setProperty('--cyan-glow', t.c + '66');
+            root.style.setProperty('--purple-glow', t.p + '66');
+            root.style.setProperty('--gold-glow', t.g + '66');
+            root.style.setProperty('--border', t.c + '33');
+            pColor = t.c;
+
+            document.querySelectorAll('.tp-swatch').forEach((el, i) => {
+                el.classList.toggle('active', i === idx);
+            });
+
+            try { localStorage.setItem('wingo-theme', idx); } catch (e) {}
+        }
+
+        function buildThemePicker() {
+            const grid = document.getElementById('themeGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            THEMES.forEach((t, i) => {
+                const sw = document.createElement('div');
+                sw.className = 'tp-swatch' + (i === 0 ? ' active' : '');
+                sw.style.background = `radial-gradient(circle at 30% 30%, ${t.c}, ${t.p})`;
+                sw.title = t.name;
+                sw.dataset.idx = i;
+                sw.addEventListener('click', () => applyTheme(i));
+                grid.appendChild(sw);
+            });
+
+            try {
+                const saved = localStorage.getItem('wingo-theme');
+                if (saved !== null) {
+                    const idx = parseInt(saved);
+                    if (!isNaN(idx) && idx >= 0 && idx < THEMES.length) applyTheme(idx);
+                }
+            } catch (e) {}
+        }
+
+        // ═══════════════════════════════════════════
+        //  AUDIO ENGINE (Web Audio)
+        // ═══════════════════════════════════════════
+        let audioCtx = null;
+
+        function getAudioCtx() {
+            if (!audioCtx) {
+                audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
+        function playTone(freq, duration, type = 'sine', volume = 0.25, delay = 0) {
+            try {
+                const ctx = getAudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+                gain.gain.setValueAtTime(volume, ctx.currentTime + delay);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + delay);
+                osc.stop(ctx.currentTime + delay + duration);
+            } catch (e) {}
+        }
+
+        function playWinSound() {
+            playTone(523, 0.15, 'sine', 0.22);
+            playTone(659, 0.15, 'sine', 0.22, 0.1);
+            playTone(784, 0.25, 'sine', 0.22, 0.2);
+            setTimeout(() => playTone(1047, 0.3, 'sine', 0.10, 0.45), 50);
+        }
+
+        function playLossSound() {
+            playTone(784, 0.2, 'sawtooth', 0.12);
+            playTone(659, 0.2, 'sawtooth', 0.12, 0.15);
+            playTone(523, 0.35, 'sawtooth', 0.12, 0.3);
+        }
+
+        function playJackpotSound() {
+            const notes = [523, 659, 784, 1047, 1319];
+            notes.forEach((f, i) => {
+                playTone(f, 0.12, 'sine', 0.18, i * 0.07);
+                setTimeout(() => playTone(f * 1.5, 0.1, 'sine', 0.06, i * 0.07 + 0.04), 10);
+            });
+            setTimeout(() => {
+                playTone(1568, 0.35, 'sine', 0.12);
+                playTone(1976, 0.35, 'sine', 0.08, 0.06);
+                playTone(2349, 0.4, 'sine', 0.06, 0.12);
+            }, 450);
+            setTimeout(() => {
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => playTone(800 + Math.random() * 600, 0.08, 'sine', 0.05), i * 55);
+                }
+            }, 700);
+        }
+
+        window.playWinSound = playWinSound;
+        window.playLossSound = playLossSound;
+        window.playJackpotSound = playJackpotSound;
+
+        // ═══════════════════════════════════════════
+        //  LOGIN
+        // ═══════════════════════════════════════════
+        document.getElementById('lBtn').onclick = doLogin;
+        document.getElementById('kInp').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+        let isLoggingIn = false;
+
+        async function doLogin() {
+            if (isLoggingIn) return;
+            const input = document.getElementById('kInp'),
+                error = document.getElementById('lErr'),
+                btn = document.getElementById('lBtn');
+
+            const enteredKey = input.value.trim();
+            if (!enteredKey) {
+                error.textContent = '❌ Please enter a security key';
+                input.focus();
+                input.style.borderColor = '#ef4444';
+                setTimeout(() => input.style.borderColor = '', 700);
+                return;
+            }
+
+            isLoggingIn = true;
+            btn.disabled = true;
+            const origBtnText = btn.textContent;
+            btn.textContent = '⚡ VERIFYING PORTAL KEY... ⚡';
+
+            try {
+                const response = await fetch('/api/auth/verify-key', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: enteredKey })
+                });
+
+                const result = await response.json();
+
+                if (result.valid) {
+                    error.textContent = '';
+                    getAudioCtx();
+                    document.getElementById('loginGate').classList.add('hidden');
+                    document.getElementById('mainApp').classList.add('show');
+                    buildThemePicker();
+                    setTimeout(engine, 450);
+                } else {
+                    error.textContent = result.message || 'Invalid or expired key';
+                    input.value = '';
+                    input.focus();
+                    input.style.borderColor = '#ef4444';
+                    setTimeout(() => input.style.borderColor = '', 700);
+                }
+            } catch (err) {
+                console.error('Login error:', err);
+                error.textContent = 'Unable to verify key. Please try again.';
+                input.style.borderColor = '#ef4444';
+                setTimeout(() => input.style.borderColor = '', 700);
+            } finally {
+                isLoggingIn = false;
+                btn.disabled = false;
+                btn.textContent = origBtnText;
+            }
+        }
+
+        function logout() {
+            document.getElementById('mainApp').classList.remove('show');
+            document.getElementById('loginGate').classList.remove('hidden');
+            document.getElementById('kInp').value = '';
+            document.getElementById('lErr').textContent = '';
+            sData = [];
+            wins = 0;
+            losses = 0;
+            jps = 0;
+            streak = 0;
+            active = null;
+            lastProc = '';
+            lastWin = '';
+            setTimer(60);
+            setPWord('SCAN', 'scan');
+            setNums('—');
+            setConf(0);
+            renderH();
+            updStats();
+            goTab('home');
+        }
+
+        // ═══════════════════════════════════════════
+        //  TABS
+        // ═══════════════════════════════════════════
+        const TABS = ['home', 'prediction', 'history', 'stats', 'profile'];
+
+        function goTab(t) {
+            TABS.forEach(x => {
+                document.getElementById('pg-' + x).classList.toggle('on', x === t);
+                const tab = document.getElementById('tab-' + x);
+                if (tab) tab.classList.toggle('on', x === t);
+            });
+            if (t !== 'home' && t !== 'prediction') updStats();
+            const pg = document.getElementById('pg-' + t);
+            if (pg) pg.scrollTop = 0;
+        }
+
+        // ═══════════════════════════════════════════
+        //  STATE
+        // ═══════════════════════════════════════════
+        let sData = [],
+            wins = 0,
+            losses = 0,
+            jps = 0,
+            streak = 0,
+            active = null,
+            lastProc = '',
+            lastWin = '';
+
+        // ═══════════════════════════════════════════
+        //  TIMER
+        // ═══════════════════════════════════════════
+        const CIRC = 377;
+
+        function setTimer(s) {
+            const off = CIRC * (1 - s / 60);
+            document.getElementById('tArc').style.strokeDashoffset = off;
+            document.getElementById('tVal').textContent = s + 's';
+        }
+        setInterval(() => { const s = new Date().getSeconds();
+            setTimer(60 - s); }, 1000);
+        setTimer(60 - new Date().getSeconds());
+
+        // ═══════════════════════════════════════════
+        //  UI HELPERS
+        // ═══════════════════════════════════════════
+        function setPWord(txt, cls) {
+            const el = document.getElementById('pWord');
+            el.textContent = txt;
+            el.className = 'pred-word ' + cls;
+            const qp = document.getElementById('qpWord');
+            qp.textContent = txt;
+            qp.className = 'qp-word ' + cls;
+        }
+
+        function setNums(txt) {
+            document.getElementById('pNums').innerHTML = 'CORE RATIO: <b>' + txt + '</b>';
+            document.getElementById('qpNums').innerHTML = 'ACTIVE TARGET: <b>' + txt + '</b>';
+        }
+
+        function setConf(p) {
+            document.getElementById('confPct').textContent = p + '%';
+            document.getElementById('confFill').style.width = p + '%';
+        }
+
+        // ═══════════════════════════════════════════
+        //  ICONS
+        // ═══════════════════════════════════════════
+        function mkSwordWin() {
+            return `<span class="sl-win-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2">
+                <path d="M12 2v10M12 12l-3-3M12 12l3-3M12 16v6M10 16h4" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6 8l6-6 6 6-6 10-6-10z" opacity="0.25" fill="var(--green)"/>
+            </svg></span>`;
+        }
+
+        function mkOniJp() {
+            return `<span class="sl-jp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2">
+                <path d="M2 4l3 12h14l3-12-5 6-3-6-3 6-5-6z" stroke-linecap="round" stroke-linejoin="round" fill="rgba(255,183,3,0.25)"/>
+                <circle cx="12" cy="18" r="1.5" fill="var(--gold)"/>
+                <circle cx="5" cy="18" r="1" fill="var(--gold)"/>
+                <circle cx="19" cy="18" r="1" fill="var(--gold)"/>
+            </svg></span>`;
+        }
+
+        function mkLossX() {
+            return `<span class="sl-loss-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2">
+                <circle cx="12" cy="12" r="9" stroke-dasharray="3 3"/>
+                <path d="M15 9l-6 6M9 9l6 6" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 2v2M12 20v2M2 12h2M20 12h2" stroke-linecap="round"/>
+            </svg></span>`;
+        }
+
+        // ═══════════════════════════════════════════
+        //  ROW
+        // ═══════════════════════════════════════════
+        function rowHTML(it) {
+            const p = String(it.p).slice(-4);
+            const pc = it.pred === 'BIG' ? 'pc-big' : 'pc-small';
+            let res = '';
+            if (it.sc === 'win') res =
+                `<div class="res-cell">${mkSwordWin()}<span class="r-win">WINNER</span></div>`;
+            else if (it.sc === 'jackpot') res =
+                `<div class="res-cell">${mkOniJp()}<span class="r-jp">JACKPOT</span></div>`;
+            else res = `<div class="res-cell">${mkLossX()}<span class="r-loss">LOSER</span></div>`;
+            return `<tr><td>${p}</td><td><span class="lvl-tag">S</span></td><td class="${pc}">${it.pred}</td><td>${it.rn}</td><td>${res}</td></tr>`;
+        }
+        const emptyRow = '<tr><td colspan="5" style="padding:18px;color:var(--dim);font-size:10px;letter-spacing:2px">NO DUNGEONS RAIDED YET</td></tr>';
+
+        function renderH() {
+            const h = sData.map(rowHTML).join('');
+            document.getElementById('hBody').innerHTML = h || emptyRow;
+            document.getElementById('hBody2').innerHTML = h || emptyRow;
+        }
+
+        // ═══════════════════════════════════════════
+        //  STATS
+        // ═══════════════════════════════════════════
+        function updStats() {
+            const tot = wins + losses,
+                rate = tot > 0 ? Math.round(wins / tot * 100) : 0;
+            document.getElementById('s-wins').textContent = wins;
+            document.getElementById('s-losses').textContent = losses;
+            document.getElementById('s-jps').textContent = jps;
+            document.getElementById('s-total').textContent = tot;
+            document.getElementById('s-streak').textContent = streak;
+            document.getElementById('s-rate').textContent = rate + '%';
+            document.getElementById('s-rbar').style.width = rate + '%';
+            document.getElementById('pf-wins').textContent = wins;
+            document.getElementById('pf-losses').textContent = losses;
+            document.getElementById('pf-rate').textContent = rate + '%';
+            document.getElementById('pf-rounds').textContent = tot;
+            document.getElementById('hgw').textContent = wins;
+            document.getElementById('hgl').textContent = losses;
+            document.getElementById('hgj').textContent = jps;
+            document.getElementById('hgr').textContent = rate + '%';
+        }
+
+        function clearHistory() {
+            sData = [];
+            wins = 0;
+            losses = 0;
+            jps = 0;
+            streak = 0;
+            renderH();
+            updStats();
+        }
+
+        // ═══════════════════════════════════════════
+        //  COPY
+        // ═══════════════════════════════════════════
+        function copyPrediction() {
+            if (!active) return;
+            const pred = active.size;
+            const predEmoji = pred === 'BIG' ? '📈🔴' : '📉🔵';
+            const t =
+                `⚡🏰 𝗪𝗜𝗡𝗚𝗢 · 𝗔𝗜 𝗣𝗥𝗘𝗗𝗜𝗖𝗧𝗢𝗥 🏯⚡\n━━━━━━━━━━━━━━━━━━━\n📅 𝗗𝘂𝗻𝗴𝗲𝗼𝗻 𝗣𝗲𝗿𝗶𝗼𝗱: ${active.period}\n${predEmoji} 𝗗𝗲𝗰𝗶𝘀𝗶𝗼𝗻: ${pred}\n🎲 𝗠𝗼𝗻𝗮𝗿𝗰 𝗖𝗼𝗿𝗲𝘀: ${active.n1}, ${active.n2}\n🎯 𝗖𝗼𝗻𝗳𝗶𝗱𝗲𝗻𝗰𝗲: ${active.conf}%\n━━━━━━━━━━━━━━━━━━━\n⚡ SYSTEM ARMED — REAL⚡`;
+
+            const b = document.getElementById('cpBtn');
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(t).then(() => {
+                    b.innerHTML =
+                        '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> COPIED!';
+                    b.className = 'copy-btn done';
+                    setTimeout(() => {
+                        b.innerHTML =
+                            '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> COPY HUNTER CODES';
+                        b.className = 'copy-btn idle';
+                    }, 2200);
+                }).catch(() => { copyFallback(t, b); });
+            } else {
+                copyFallback(t, b);
+            }
+        }
+
+        function copyFallback(text, btn) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            ta.style.top = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                const ok = document.execCommand('copy');
+                if (ok) {
+                    btn.innerHTML =
+                        '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> COPIED!';
+                    btn.className = 'copy-btn done';
+                    setTimeout(() => {
+                        btn.innerHTML =
+                            '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> COPY HUNTER CODES';
+                        btn.className = 'copy-btn idle';
+                    }, 2200);
+                } else { alert(text); }
+            } catch (e) { alert(text); }
+            document.body.removeChild(ta);
+        }
+
+        function copyPeriod() {
+            const val = document.getElementById('periodVal').textContent;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(val).catch(() => {});
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = val;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); } catch (e) {}
+                document.body.removeChild(ta);
+            }
+        }
+
+        // ═══════════════════════════════════════════
+        //  CONFETTI
+        // ═══════════════════════════════════════════
+        function confetti(n = 60) {
+            const c = document.getElementById('cc');
+            const cols = ['#00f0ff', '#9d4edd', '#ffb703', '#ef4444', '#22c55e', '#60a5fa', '#f97316', '#14b8a6'];
+            for (let i = 0; i < n; i++) {
+                const p = document.createElement('div');
+                p.className = 'cp';
+                const sz = 5 + Math.random() * 9,
+                    col = cols[Math.floor(Math.random() * cols.length)];
+                const l = Math.random() * 100,
+                    d = Math.random() * .6,
+                    dur = 1.2 + Math.random() * 1.8;
+                p.style.cssText =
+                    `left:${l}%;width:${sz}px;height:${sz*(0.5+Math.random()*.9)}px;background:${col};border-radius:2px;animation-delay:${d}s;animation-duration:${dur}s;`;
+                c.appendChild(p);
+                setTimeout(() => p.remove(), (d + dur) * 1000 + 100);
+            }
+        }
+
+        // ═══════════════════════════════════════════
+        //  RESULT OVERLAY
+        // ═══════════════════════════════════════════
+        function showResultOverlay(res, num) {
+            const ov = document.getElementById('resOverlay');
+            const card = document.getElementById('resCard');
+            const icon = document.getElementById('resIcon');
+            const title = document.getElementById('resTitle');
+            const sub = document.getElementById('resSub');
+
+            card.className = 'res-card';
+            if (res === 'JACKPOT') {
+                card.classList.add('res-jack-card');
+                icon.textContent = '🟣';
+                title.textContent = 'JACKPOT';
+                sub.textContent = 'NUMBER ' + num + ' · PERFECT HIT!';
+            } else if (res === 'WIN') {
+                card.classList.add('res-win-card');
+                icon.textContent = '⚡';
+                title.textContent = 'WIN';
+                sub.textContent = 'PREDICTION CORRECT · NUMBER ' + num;
+            } else {
+                card.classList.add('res-loss-card');
+                icon.textContent = '✖';
+                title.textContent = 'LOSS';
+                sub.textContent = 'PREDICTION MISSED · NUMBER ' + num;
+            }
+            ov.classList.add('show');
+            setTimeout(() => ov.classList.remove('show'), 3200);
+        }
+
+        // ═══════════════════════════════════════════
+        //  PREDICTOR
+        // ═══════════════════════════════════════════
+        function predict(seq) {
+            if (seq.length < 3) return { p: null, c: 0 };
+            const s = seq.join(''),
+                len = s.length,
+                last = s[len - 1];
+            if (s.endsWith('BBBBB')) return { p: 'BIG', c: 85 };
+            if (s.endsWith('SSSSS')) return { p: 'SMALL', c: 85 };
+            if (s.endsWith('BSBSBS') || s.endsWith('SBSBSB')) return { p: last === 'S' ? 'BIG' : 'SMALL', c: 80 };
+            const pm = { 'BSBBSB': { p: 'SMALL', c: 75 }, 'BSBSSBS': { p: 'BIG', c: 75 }, 'BBSS': { p: 'BIG',
+                    c: 70 }, 'SSBB': { p: 'SMALL', c: 70 }, 'SSS': { p: 'BIG', c: 65 }, 'BBB': { p: 'SMALL',
+                    c: 65 } };
+            for (let k in pm)
+                if (s.endsWith(k)) return { p: pm[k].p, c: pm[k].c };
+            if (len >= 3) {
+                const sub = s.slice(-2);
+                let cb = 0,
+                    cs = 0;
+                for (let i = 0; i < len - 2; i++) {
+                    if (s.slice(i, i + 2) === sub) {
+                        if (s[i + 2] === 'B') cb++;
+                        if (s[i + 2] === 'S') cs++;
+                    }
+                }
+                const tot = cb + cs;
+                if (tot > 0) {
+                    const pb = cb / tot;
+                    if (pb > .6) return { p: 'BIG', c: Math.round(pb * 100) };
+                    if (pb < .4) return { p: 'SMALL', c: Math.round((1 - pb) * 100) };
+                }
+            }
+            const rec = s.slice(-10),
+                bc = (rec.match(/B/g) || []).length,
+                sc = (rec.match(/S/g) || []).length;
+            if (bc > sc) return { p: 'BIG', c: Math.round(bc / rec.length * 100) };
+            if (sc > bc) return { p: 'SMALL', c: Math.round(sc / rec.length * 100) };
+            return { p: last === 'B' ? 'SMALL' : 'BIG', c: 55 };
+        }
+
+        // ═══════════════════════════════════════════
+        //  ENGINE
+        // ═══════════════════════════════════════════
+        async function engine() {
+            try {
+                const r = await fetch(
+                    `https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?t=${Date.now()}`);
+                const data = await r.json();
+                const list = data.data.list;
+                const latest = list[0];
+                const issue = latest.issueNumber;
+
+                if (lastProc !== '' && lastProc !== issue) {
+                    if (active && active.period === issue) {
+                        const n = parseInt(latest.number),
+                            sz = n >= 5 ? 'BIG' : 'SMALL';
+                        let st = 'LOSS',
+                            sc = 'loss',
+                            isW = false,
+                            isJ = false;
+                        if (n === active.n1 || n === active.n2) {
+                            st = 'JACKPOT';
+                            sc = 'jackpot';
+                            isJ = isW = true;
+                            jps++;
+                            wins++;
+                            streak++;
+                            playJackpotSound();
+                            confetti(120);
+                            showResultOverlay('JACKPOT', n);
+                        } else if (sz === active.size) {
+                            st = 'WIN';
+                            sc = 'win';
+                            isW = true;
+                            wins++;
+                            streak++;
+                            playWinSound();
+                            confetti(65);
+                            showResultOverlay('WIN', n);
+                        } else {
+                            losses++;
+                            streak = 0;
+                            playLossSound();
+                            showResultOverlay('LOSS', n);
+                        }
+                        sData.unshift({ p: issue, rn: n, rs: sz, pred: active.size, st, sc });
+                        if (sData.length > 50) sData.pop();
+                        renderH();
+                        updStats();
+                        if (isW && lastWin !== issue) {
+                            lastWin = issue;
+                            document.getElementById('pWord').classList.add('wglow');
+                            setTimeout(() => document.getElementById('pWord').classList.remove('wglow'), 2600);
+                        }
+                    }
+                }
+
+                const nextP = (BigInt(issue) + 1n).toString();
+                const hist = list.slice(0, 20).map(x => parseInt(x.number));
+                const chrono = hist.slice().reverse().map(n => n >= 5 ? 'B' : 'S');
+                let res = predict(chrono);
+                let pred = res.p,
+                    conf = res.c;
+                if (!pred) {
+                    const rec = chrono.slice(-10),
+                        bc = rec.filter(x => x === 'B').length,
+                        sc = rec.length - bc;
+                    pred = bc > sc ? 'BIG' : 'SMALL';
+                    conf = Math.round((bc > sc ? bc : sc) / rec.length * 100);
+                }
+
+                conf = Math.min(99, Math.max(52, conf + Math.floor(Math.random() * 6) - 2));
+
+                const seed = parseInt(issue.slice(-3));
+                let n1, n2;
+                if (pred === 'BIG') {
+                    n1 = [5, 6, 7, 8, 9][(seed + parseInt(latest.number)) % 5];
+                    n2 = [0, 1, 2, 3, 4][(seed * 3) % 5];
+                } else {
+                    n1 = [0, 1, 2, 3, 4][(seed + parseInt(latest.number)) % 5];
+                    n2 = [5, 6, 7, 8, 9][(seed * 7) % 5];
+                }
+
+                active = { period: nextP, size: pred, n1, n2, conf };
+                document.getElementById('periodVal').textContent = nextP;
+                setPWord(pred, pred.toLowerCase());
+                setNums(n1 + ', ' + n2);
+                setConf(conf);
+                lastProc = issue;
+            } catch (e) { console.log(e); }
+        }
+
+        setInterval(engine, 1500);
+        setTimeout(engine, 500);
+
+        // ═══════════════════════════════════════════
+        //  INIT
+        // ═══════════════════════════════════════════
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme picker will be built on login
+        });
+
+        function fixHeight() {
+            const h = window.innerHeight;
+            const app = document.getElementById('mainApp');
+            if (app) app.style.minHeight = h + 'px';
+        }
+        fixHeight();
+        window.addEventListener('resize', fixHeight);
+        window.addEventListener('orientationchange', () => setTimeout(fixHeight, 200));
+    </script>
+    <script>
+(function () {
+    "use strict";
+
+    /* =====================================================
+       REMOTE POPUP INJECTOR
+       Firebase Project: poup-real-time
+       ===================================================== */
+
+    const FIREBASE_CONFIG = {
+        apiKey: "AIzaSyAI3z1Cu-bmwwSgf5eVO3wpQ3PKqGCxDZc",
+        authDomain: "poup-real-time.firebaseapp.com",
+        databaseURL: "https://poup-real-time-default-rtdb.firebaseio.com",
+        projectId: "poup-real-time",
+        storageBucket: "poup-real-time.firebasestorage.app",
+        messagingSenderId: "47044726694",
+        appId: "1:47044726694:web:4d24b6c479a709ef46c967"
+    };
+
+    const FIREBASE_APP =
+        "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js";
+
+    const FIREBASE_DB =
+        "https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js";
+
+    let popupTimer = null;
+    let popupShown = false;
+
+    function loadScript(url) {
+        return new Promise(function(resolve, reject) {
+            const script = document.createElement("script");
+
+            script.src = url;
+            script.async = true;
+
+            script.onload = resolve;
+            script.onerror = reject;
+
+            document.head.appendChild(script);
+        });
+    }
+
+    async function start() {
+        try {
+
+            if (!window.firebase) {
+                await loadScript(FIREBASE_APP);
+                await loadScript(FIREBASE_DB);
+            }
+
+            if (!firebase.apps.length) {
+                firebase.initializeApp(FIREBASE_CONFIG);
+            }
+
+            const database = firebase.database();
+
+            database.ref("remotePopup").on(
+                "value",
+                function(snapshot) {
+
+                    const data = snapshot.val();
+
+                    if (!data || data.enabled !== true) {
+                        removePopup();
+                        return;
+                    }
+
+                    showPopup(data);
+                },
+                function(error) {
+                    console.error(
+                        "Remote popup Firebase error:",
+                        error
+                    );
+                }
+            );
+
+        } catch (error) {
+
+            /*
+             * Firebase fail hone par main app ko
+             * block nahi karna hai.
+             */
+            console.error(
+                "Remote popup failed:",
+                error
+            );
+        }
+    }
+
+    function showPopup(data) {
+
+        /*
+         * Agar popup already current page par visible hai,
+         * unnecessarily dobara create nahi karenge.
+         */
+        if (document.getElementById("rp-remote-overlay")) {
+            return;
+        }
+
+        popupShown = true;
+
+        const duration =
+            Math.max(
+                1,
+                parseInt(data.duration, 10) || 20
+            );
+
+        const title =
+            escapeHTML(
+                data.title || "Official Channel"
+            );
+
+        const message =
+            escapeHTML(
+                data.message ||
+                "Join our official channel for latest updates."
+            );
+
+        const joinUrl =
+            String(data.joinUrl || "").trim();
+
+        if (!joinUrl) {
+            return;
+        }
+
+        const overlay =
+            document.createElement("div");
+
+        overlay.id = "rp-remote-overlay";
+
+        overlay.innerHTML = `
+            <div class="rp-popup-card">
+
+                <div class="rp-popup-icon">
+                    📢
+                </div>
+
+                <div class="rp-popup-title">
+                    ${title}
+                </div>
+
+                <div class="rp-popup-message">
+                    ${message}
+                </div>
+
+                <div class="rp-popup-count">
+                    Auto close in
+                    <strong id="rp-count">
+                        ${duration}
+                    </strong>s
+                </div>
+
+                <button
+                    id="rp-join-btn"
+                    type="button">
+                    JOIN OFFICIAL CHANNEL
+                </button>
+
+                <button
+                    id="rp-close-btn"
+                    type="button">
+                    CLOSE
+                </button>
+
+            </div>
+        `;
+
+        const style =
+            document.createElement("style");
+
+        style.id = "rp-remote-style";
+
+        style.textContent = `
+            #rp-remote-overlay {
+                position: fixed;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 2147483647;
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                padding: 18px;
+
+                background:
+                    rgba(0,0,0,.62);
+
+                backdrop-filter:
+                    blur(8px);
+
+                -webkit-backdrop-filter:
+                    blur(8px);
+
+                font-family:
+                    Arial,
+                    Helvetica,
+                    sans-serif;
+
+                animation:
+                    rpFadeIn .25s ease;
+            }
+
+            .rp-popup-card {
+                width: 100%;
+                max-width: 360px;
+
+                padding: 26px 22px;
+
+                border-radius: 24px;
+
+                background: #ffffff;
+
+                color: #111111;
+
+                text-align: center;
+
+                box-shadow:
+                    0 25px 80px
+                    rgba(0,0,0,.35);
+
+                animation:
+                    rpPopupIn .3s
+                    cubic-bezier(.2,.8,.2,1);
+            }
+
+            .rp-popup-icon {
+                width: 66px;
+                height: 66px;
+
+                margin:
+                    0 auto 15px;
+
+                border-radius: 50%;
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                background:
+                    #eef5ff;
+
+                font-size: 30px;
+            }
+
+            .rp-popup-title {
+                font-size: 21px;
+                font-weight: 800;
+
+                margin-bottom: 9px;
+            }
+
+            .rp-popup-message {
+                color: #666666;
+
+                font-size: 14px;
+
+                line-height: 1.5;
+
+                margin-bottom: 15px;
+            }
+
+            .rp-popup-count {
+                color: #888888;
+
+                font-size: 12px;
+
+                margin-bottom: 16px;
+            }
+
+            .rp-popup-count strong {
+                color: #111111;
+                font-size: 14px;
+            }
+
+            #rp-join-btn {
+                width: 100%;
+
+                border: 0;
+
+                border-radius: 13px;
+
+                padding: 14px;
+
+                background:
+                    #229ed9;
+
+                color: #ffffff;
+
+                font-size: 13px;
+
+                font-weight: 800;
+
+                cursor: pointer;
+
+                margin-bottom: 9px;
+            }
+
+            #rp-close-btn {
+                width: 100%;
+
+                border: 0;
+
+                border-radius: 13px;
+
+                padding: 12px;
+
+                background:
+                    #f1f1f1;
+
+                color: #555555;
+
+                font-size: 13px;
+
+                font-weight: 700;
+
+                cursor: pointer;
+            }
+
+            #rp-join-btn:active,
+            #rp-close-btn:active {
+                transform: scale(.98);
+            }
+
+            @keyframes rpFadeIn {
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
+            }
+
+            @keyframes rpPopupIn {
+                from {
+                    opacity: 0;
+                    transform:
+                        scale(.88)
+                        translateY(15px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform:
+                        scale(1)
+                        translateY(0);
+                }
+            }
+        `;
+
+        document.head.appendChild(style);
+        document.body.appendChild(overlay);
+
+        let remaining = duration;
+
+        popupTimer =
+            setInterval(function() {
+
+                remaining--;
+
+                const counter =
+                    document.getElementById(
+                        "rp-count"
+                    );
+
+                if (counter) {
+                    counter.textContent =
+                        remaining;
+                }
+
+                if (remaining <= 0) {
+                    clearInterval(popupTimer);
+                    popupTimer = null;
+
+                    removePopup();
+                }
+
+            }, 1000);
+
+
+        const joinButton =
+            document.getElementById(
+                "rp-join-btn"
+            );
+
+        if (joinButton) {
+
+            joinButton.onclick =
+                function() {
+
+                    /*
+                     * Click ke turant baad popup remove.
+                     */
+                    removePopup();
+
+                    /*
+                     * Link Firebase se aaya hai.
+                     */
+                    try {
+                        window.open(
+                            joinUrl,
+                            "_blank",
+                            "noopener,noreferrer"
+                        );
+                    } catch (e) {
+                        window.location.href =
+                            joinUrl;
+                    }
+                };
+        }
+
+
+        const closeButton =
+            document.getElementById(
+                "rp-close-btn"
+            );
+
+        if (closeButton) {
+
+            closeButton.onclick =
+                function() {
+                    removePopup();
+                };
+        }
+    }
+
+
+    function removePopup() {
+
+        if (popupTimer) {
+            clearInterval(popupTimer);
+            popupTimer = null;
+        }
+
+        const overlay =
+            document.getElementById(
+                "rp-remote-overlay"
+            );
+
+        if (overlay) {
+            overlay.remove();
+        }
+
+        const style =
+            document.getElementById(
+                "rp-remote-style"
+            );
+
+        if (style) {
+            style.remove();
+        }
+
+        popupShown = false;
+    }
+
+
+    function escapeHTML(value) {
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    /*
+     * Page load par Firebase setting check.
+     *
+     * Har baar HTML fresh open hoga:
+     *
+     * enabled = true  → popup
+     * enabled = false → nothing
+     */
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            start
+        );
+
+    } else {
+
+        start();
+    }
+
+})();
+</script>
+
+    
+</body>
+</html>

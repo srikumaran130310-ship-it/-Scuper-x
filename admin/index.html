@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>SCUPER X · ADMIN CONTROL PANEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&family=Bebas+Neue&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        :root {
+            --bg: #04020a;
+            --card: rgba(10, 10, 25, 0.92);
+            --card2: rgba(5, 5, 15, 0.85);
+            --border: rgba(0, 240, 255, 0.2);
+            --cyan: #00f0ff;
+            --cyan-glow: rgba(0, 240, 255, 0.45);
+            --purple: #9d4edd;
+            --purple-glow: rgba(157, 78, 221, 0.5);
+            --gold: #ffb703;
+            --gold-glow: rgba(255, 183, 3, 0.5);
+            --red: #ef4444;
+            --green: #22c55e;
+            --text: #e2e0eb;
+            --dim: #737085;
+            --dim2: #585061;
+        }
+        html, body {
+            background: var(--bg);
+            min-height: 100vh;
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--text);
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Ambient Background */
+        .bg-glow {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: 
+                radial-gradient(ellipse at 50% 10%, rgba(157, 78, 221, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 90%, rgba(0, 240, 255, 0.1) 0%, transparent 60%);
+            z-index: 0;
+        }
+
+        /* Container */
+        .admin-container {
+            width: 100%;
+            max-width: 520px;
+            min-height: 100vh;
+            padding: 20px 16px;
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* LOGIN SCREEN */
+        #adminLoginGate {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.5s ease;
+        }
+        #adminLoginGate.hidden {
+            display: none;
+        }
+
+        .lg-box {
+            background: var(--card);
+            border: 2px solid var(--purple);
+            border-radius: 22px;
+            padding: 38px 26px 30px;
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 60px var(--purple-glow);
+        }
+        .lg-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 26px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+        .lg-logo span {
+            background: linear-gradient(135deg, var(--purple), #df73ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .lg-sub {
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin: 8px 0 24px;
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .lg-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, .03);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 2px;
+            transition: all .3s;
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 10px;
+        }
+        .lg-input:focus {
+            outline: none;
+            border-color: var(--purple);
+            background: rgba(157, 78, 221, .06);
+            box-shadow: 0 0 25px var(--purple-glow);
+        }
+        .lg-btn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--purple), #6c2bd9);
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 4px 28px var(--purple-glow);
+            transition: all .25s;
+            font-family: 'Inter', sans-serif;
+        }
+        .lg-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 36px var(--purple-glow);
+        }
+        .lg-btn:active { transform: scale(0.98); }
+        .lg-err {
+            color: var(--red);
+            font-size: 12px;
+            margin-top: 12px;
+            min-height: 18px;
+            font-weight: 600;
+        }
+
+        /* ADMIN DASHBOARD */
+        #adminDashboard {
+            width: 100%;
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            animation: fadeIn 0.5s ease forwards;
+        }
+        #adminDashboard.show {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header */
+        .dash-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+        }
+        .dash-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+        .dash-sub {
+            font-size: 9px;
+            color: var(--dim);
+            letter-spacing: 1.5px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .logout-btn {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--red);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            transition: all 0.2s;
+        }
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Card Section */
+        .panel-card {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--cyan);
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .badge-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 800;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+        .badge-active {
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            color: var(--green);
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.2);
+        }
+        .badge-revoked {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: var(--red);
+        }
+
+        /* Key Box Display */
+        .key-display-container {
+            background: var(--card2);
+            border: 1.5px dashed var(--cyan);
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            margin: 12px 0 16px;
+            position: relative;
+        }
+        .key-lbl {
+            font-size: 9px;
+            color: var(--dim);
+            letter-spacing: 2px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .key-val {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px var(--gold-glow);
+            word-break: break-all;
+        }
+        .key-meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+            font-size: 11px;
+            text-align: left;
+        }
+        .meta-item {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .meta-lbl {
+            font-size: 8px;
+            color: var(--dim);
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+        .meta-val {
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        /* Action Buttons Grid */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .act-btn {
+            padding: 12px 10px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            background: var(--card2);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .act-btn.primary {
+            grid-column: span 2;
+            background: linear-gradient(135deg, var(--cyan), #0066cc);
+            color: #000;
+            border: none;
+            box-shadow: 0 4px 20px var(--cyan-glow);
+            font-size: 11px;
+        }
+        .act-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 26px var(--cyan-glow);
+        }
+        .act-btn.danger {
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--red);
+        }
+        .act-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--red);
+        }
+        .act-btn.success {
+            border-color: rgba(34, 197, 94, 0.3);
+            color: var(--green);
+        }
+        .act-btn.success:hover {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: var(--green);
+        }
+
+        .notify-msg {
+            font-size: 11px;
+            color: var(--green);
+            margin-top: 8px;
+            text-align: center;
+            font-weight: 700;
+            min-height: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <div class="admin-container">
+
+        <!-- ════════ ADMIN LOGIN GATE ════════ -->
+        <div id="adminLoginGate">
+            <div class="lg-box">
+                <div class="lg-logo">SCUPER <span>X</span></div>
+                <div class="lg-sub">⚡ ADMIN CONTROL PANEL ⚡</div>
+                <input class="lg-input" id="adminUserInp" type="text" placeholder="ADMIN USERNAME" value="admin" autocomplete="off" spellcheck="false">
+                <input class="lg-input" id="adminPassInp" type="password" placeholder="ADMIN PASSWORD" autocomplete="off" spellcheck="false">
+                <button class="lg-btn" id="adminAuthBtn" onclick="doAdminLogin()">LOGIN</button>
+                <div class="lg-err" id="adminAuthErr"></div>
+            </div>
+        </div>
+
+        <!-- ════════ ADMIN DASHBOARD ════════ -->
+        <div id="adminDashboard">
+
+            <div class="dash-header">
+                <div>
+                    <div class="dash-title">SCUPER X ADMIN PANEL</div>
+                    <div class="dash-sub">MASTER SECURITY CONTROL</div>
+                </div>
+                <button class="logout-btn" onclick="doAdminLogout()">LOGOUT</button>
+            </div>
+
+            <!-- Active Key Card -->
+            <div class="panel-card">
+                <div class="card-head">
+                    <div class="card-title">
+                        <span>🔑 DAILY ACCESS KEY</span>
+                    </div>
+                    <span class="badge-status badge-active" id="keyStatusBadge">● ACTIVE</span>
+                </div>
+
+                <div class="key-display-container">
+                    <div class="key-lbl">CURRENT KEY</div>
+                    <div class="key-val" id="currentKeyVal">LOADING...</div>
+                    <button class="act-btn" id="copyKeyBtn" style="margin: 10px auto 0; padding: 6px 16px;" onclick="copyKey()">📋 COPY KEY</button>
+                </div>
+
+                <div class="key-meta-grid">
+                    <div class="meta-item">
+                        <div class="meta-lbl">DATE</div>
+                        <div class="meta-val" id="todayDateVal">--</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-lbl">EXPIRES</div>
+                        <div class="meta-val" id="expiryTimeVal">23:59:59</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-lbl">CREATED AT</div>
+                        <div class="meta-val" id="createdAtVal">--</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-lbl">KEY VERSION</div>
+                        <div class="meta-val" id="keyVersionVal">v1</div>
+                    </div>
+                </div>
+
+                <div class="actions-grid">
+                    <button class="act-btn primary" onclick="generateNewKey()">🎲 GENERATE NEW KEY</button>
+                    <button class="act-btn danger" onclick="revokeKey()">REVOKE KEY</button>
+                    <button class="act-btn success" onclick="activateKey()">ACTIVATE KEY</button>
+                </div>
+
+                <div class="notify-msg" id="dashNotify"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        let adminToken = localStorage.getItem('scuper_admin_token') || '';
+
+        document.getElementById('adminPassInp').addEventListener('keydown', e => {
+            if (e.key === 'Enter') doAdminLogin();
+        });
+
+        async function doAdminLogin() {
+            const userInp = document.getElementById('adminUserInp');
+            const passInp = document.getElementById('adminPassInp');
+            const err = document.getElementById('adminAuthErr');
+            const btn = document.getElementById('adminAuthBtn');
+
+            const username = userInp ? userInp.value.trim() : 'admin';
+            const password = passInp.value.trim();
+
+            if (!password) {
+                err.textContent = '❌ Please enter password';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'LOGGING IN...';
+            err.textContent = '';
+
+            try {
+                const res = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    adminToken = data.token;
+                    localStorage.setItem('scuper_admin_token', adminToken);
+                    passInp.value = '';
+                    showDashboard();
+                } else {
+                    err.textContent = data.message || '❌ Invalid Credentials';
+                }
+            } catch (e) {
+                err.textContent = '❌ Connection Error to Backend';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'LOGIN';
+            }
+        }
+
+        function doAdminLogout() {
+            fetch('/api/admin/logout', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + adminToken }
+            }).catch(() => {});
+
+            adminToken = '';
+            localStorage.removeItem('scuper_admin_token');
+            document.getElementById('adminDashboard').classList.remove('show');
+            document.getElementById('adminLoginGate').classList.remove('hidden');
+        }
+
+        async function fetchCurrentKey() {
+            if (!adminToken) return;
+
+            try {
+                const res = await fetch('/api/admin/current-key', {
+                    headers: { 'Authorization': 'Bearer ' + adminToken }
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                    doAdminLogout();
+                    return;
+                }
+
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('currentKeyVal').textContent = data.key || 'SCX-NONE';
+                    document.getElementById('todayDateVal').textContent = data.date || '--';
+                    document.getElementById('expiryTimeVal').textContent = data.expiresAt || '23:59:59';
+                    document.getElementById('createdAtVal').textContent = data.createdAt || '--';
+                    document.getElementById('keyVersionVal').textContent = data.keyVersion || 'v1';
+
+                    const badge = document.getElementById('keyStatusBadge');
+                    if (data.status === 'ACTIVE') {
+                        badge.textContent = '● ACTIVE';
+                        badge.className = 'badge-status badge-active';
+                    } else {
+                        badge.textContent = '● ' + (data.status || 'REVOKED');
+                        badge.className = 'badge-status badge-revoked';
+                    }
+                }
+            } catch (err) {
+                console.error('Fetch key error:', err);
+            }
+        }
+
+        async function generateNewKey() {
+            showNotify('Generating new key...', 'var(--cyan)');
+            try {
+                const res = await fetch('/api/admin/generate-key', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + adminToken }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showNotify('⚡ New Access Key Activated Successfully!', 'var(--green)');
+                    fetchCurrentKey();
+                } else {
+                    showNotify('❌ ' + (data.message || 'Failed to generate key'), 'var(--red)');
+                }
+            } catch (err) {
+                showNotify('❌ Server connection error', 'var(--red)');
+            }
+        }
+
+        async function revokeKey() {
+            showNotify('Revoking key...', 'var(--gold)');
+            try {
+                const res = await fetch('/api/admin/revoke-key', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + adminToken }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showNotify('⛔ Current Key Revoked', 'var(--red)');
+                    fetchCurrentKey();
+                } else {
+                    showNotify('❌ ' + (data.message || 'Failed to revoke key'), 'var(--red)');
+                }
+            } catch (err) {
+                showNotify('❌ Server connection error', 'var(--red)');
+            }
+        }
+
+        async function activateKey() {
+            generateNewKey();
+        }
+
+        function copyKey() {
+            const keyText = document.getElementById('currentKeyVal').textContent;
+            const btn = document.getElementById('copyKeyBtn');
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(keyText).then(() => {
+                    btn.textContent = '✓ COPIED!';
+                    setTimeout(() => { btn.textContent = '📋 COPY KEY'; }, 2000);
+                });
+            } else {
+                alert('Key: ' + keyText);
+            }
+        }
+
+        function showNotify(msg, color = 'var(--green)') {
+            const n = document.getElementById('dashNotify');
+            n.textContent = msg;
+            n.style.color = color;
+            setTimeout(() => { if (n.textContent === msg) n.textContent = ''; }, 4000);
+        }
+
+        function showDashboard() {
+            document.getElementById('adminLoginGate').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.add('show');
+            fetchCurrentKey();
+        }
+
+        // Auto check token on load
+        if (adminToken) {
+            showDashboard();
+        }
+    </script>
+</body>
+</html>

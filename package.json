@@ -1,0 +1,20 @@
+{
+  "name": "scuper-x",
+  "version": "2.0.0",
+  "description": "SCUPER X AI Predictor System & Dual Portal Security Key Management",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node server/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "keywords": [
+    "scuper-x",
+    "ai-predictor",
+    "security-key-management"
+  ],
+  "author": "SCUPER X Team",
+  "license": "ISC"
+}
