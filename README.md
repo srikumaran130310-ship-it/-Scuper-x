@@ -65,7 +65,7 @@ npm start
 
 ### How to Generate a New Daily Key
 1. Open the Admin Control Panel at `http://localhost:3000/admin`.
-2. Enter your Admin Username (`admin`) and Password (`Admin@Scuper2026`).
+2. Enter your Admin Username (`srikumaran`) and Password (`srikumaran1307).
 3. Click **`[ 🎲 GENERATE NEW KEY ]`**.
 4. The system will:
    - Revoke the previously active key.
