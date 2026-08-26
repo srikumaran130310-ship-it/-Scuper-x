@@ -1,27 +1,27 @@
-# ⚡ SCUPER X - Production Portal System
+# ⚡ SCUPER X - Customer-Wise Unique Key Management System
 
-SCUPER X is an AI Predictor web application featuring a complete separation between the public **User Portal** and the secure **Admin Control Panel**.
+SCUPER X is an AI Predictor web application featuring complete separation between the public **User Portal** and the secure **Admin Control Panel**, now supporting **Customer-Wise Unique Key Management**.
 
 ---
 
-## 📁 Final Folder Structure
+## 📁 Project Structure
 
 ```
 SCUPER-X/
 ├── user/
-│   └── index.html          # Public User Portal (Login, Predictor, History, Stats, Profile, Telegram link)
+│   └── index.html          # Public User Portal (Predictor, History, Stats, Profile, Telegram channel link)
 │
 ├── admin/
-│   └── index.html          # Isolated Admin Portal (Password Auth, Single Active Key Card)
+│   └── index.html          # Isolated Admin Panel (Customer Unique Key Management)
 │
 ├── server/
 │   ├── server.js           # Main Express HTTP Server & REST API Endpoints
-│   ├── auth.js             # Security, Hashing (SHA-256), Session & Rate Limiting
+│   ├── auth.js             # Security, SHA-256 Hashing, Session & Rate Limiting
 │   └── database.js         # JSON Database Persistence Layer (`db.json`)
 │
 ├── package.json            # Node.js Project Dependencies & Scripts
-├── .env                    # Environment Configuration File
-└── README.md               # Project Deployment & Operations Manual
+├── .env                    # Environment Configuration File (Secret keys & passwords)
+└── README.md               # Operations & Deployment Guide
 ```
 
 ---
@@ -40,8 +40,8 @@ Create or verify `.env` file in the root directory:
 PORT=3000
 NODE_ENV=production
 ADMIN_USERNAME=admin
-ADMIN_PASSWORD=Admin@Scuper2026
-SESSION_SECRET=scuper_x_secret_session_key_2026
+ADMIN_PASSWORD=your_secure_admin_password
+SESSION_SECRET=your_random_64_char_session_secret
 ```
 
 ### 3. Start Server
@@ -63,22 +63,24 @@ npm start
 
 ## 🔑 Key Management Operations
 
-### How to Generate a New Daily Key
+### How to Generate a Customer Unique Key
 1. Open the Admin Control Panel at `http://localhost:3000/admin`.
-2. Enter your Admin Username (`srikumaran`) and Password (`srikumaran1307).
-3. Click **`[ 🎲 GENERATE NEW KEY ]`**.
+2. Enter your Admin Username and Password (configured in your `.env`).
+3. Under **GENERATE UNIQUE CUSTOMER KEY**:
+   - Enter Customer Name (e.g. `John Doe`)
+   - Enter optional Customer ID / Username (e.g. `CUST-101`)
+   - Click **`[ 🎲 GENERATE UNIQUE KEY FOR CUSTOMER ]`**.
 4. The system will:
-   - Revoke the previously active key.
    - Generate a cryptographically secure 16-character key (`SCX-XXXX-XXXX-XXXX`).
-   - Store the SHA-256 hash in `server/db.json`.
-   - Display the new key in your admin card.
+   - Store the SHA-256 hash and customer metadata in `server/db.json`.
+   - Display the new key in the **CUSTOMER ACCESS KEYS** table with options to Copy, Revoke, or Delete.
    - Expire automatically at `23:59:59 UTC`.
 
 ---
 
 ## 🌐 Production Deployment Instructions
 
-### Deploying to Render / Railway / Heroku / VPS
+### Deploying to Render / Railway / VPS
 1. Upload/Push the repository to GitHub.
 2. Set Environment Variables on your hosting provider:
    - `PORT` = `3000` (or dynamic port provided by cloud provider)

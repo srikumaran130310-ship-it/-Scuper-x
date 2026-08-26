@@ -38,7 +38,7 @@
             overflow-x: hidden;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
         }
 
         /* Ambient Background */
@@ -55,14 +55,13 @@
         /* Container */
         .admin-container {
             width: 100%;
-            max-width: 520px;
+            max-width: 860px;
             min-height: 100vh;
-            padding: 20px 16px;
+            padding: 24px 16px;
             position: relative;
             z-index: 10;
             display: flex;
             flex-direction: column;
-            justify-content: center;
         }
 
         /* LOGIN SCREEN */
@@ -71,6 +70,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 80vh;
             transition: all 0.5s ease;
         }
         #adminLoginGate.hidden {
@@ -95,6 +95,7 @@
             font-weight: 900;
             background: linear-gradient(135deg, #fff, var(--cyan));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: 2px;
             line-height: 1;
@@ -102,6 +103,7 @@
         .lg-logo span {
             background: linear-gradient(135deg, var(--purple), #df73ff);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .lg-sub {
@@ -120,12 +122,13 @@
             border: 1.5px solid var(--border);
             border-radius: 12px;
             color: #fff;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
             text-align: center;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             transition: all .3s;
             font-family: 'Inter', sans-serif;
+            margin-bottom: 10px;
         }
         .lg-input:focus {
             outline: none;
@@ -136,7 +139,7 @@
         .lg-btn {
             width: 100%;
             padding: 15px;
-            margin-top: 16px;
+            margin-top: 10px;
             border: none;
             border-radius: 12px;
             font-size: 13px;
@@ -168,7 +171,7 @@
             width: 100%;
             display: none;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
             animation: fadeIn 0.5s ease forwards;
         }
         #adminDashboard.show {
@@ -184,17 +187,18 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 14px 18px;
+            padding: 16px 20px;
             background: var(--card);
             border: 1.5px solid var(--border);
             border-radius: 16px;
         }
         .dash-title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 900;
             background: linear-gradient(135deg, #fff, var(--gold));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: 2px;
         }
@@ -203,9 +207,10 @@
             color: var(--dim);
             letter-spacing: 1.5px;
             font-family: 'Orbitron', sans-serif;
+            margin-top: 2px;
         }
         .logout-btn {
-            padding: 8px 14px;
+            padding: 8px 16px;
             border-radius: 8px;
             border: 1px solid rgba(239, 68, 68, 0.4);
             background: rgba(239, 68, 68, 0.1);
@@ -222,12 +227,12 @@
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
         }
 
-        /* Card Section */
+        /* Cards */
         .panel-card {
             background: var(--card);
             border: 1.5px solid var(--border);
             border-radius: 18px;
-            padding: 20px;
+            padding: 22px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             position: relative;
         }
@@ -235,13 +240,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 14px;
-            padding-bottom: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
         .card-title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 800;
             color: var(--cyan);
             letter-spacing: 2px;
@@ -249,111 +254,73 @@
             align-items: center;
             gap: 8px;
         }
-        .badge-status {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 9px;
-            font-weight: 800;
-            font-family: 'Orbitron', sans-serif;
-            letter-spacing: 1px;
-        }
-        .badge-active {
-            background: rgba(34, 197, 94, 0.12);
-            border: 1px solid rgba(34, 197, 94, 0.4);
-            color: var(--green);
-            box-shadow: 0 0 12px rgba(34, 197, 94, 0.2);
-        }
-        .badge-revoked {
-            background: rgba(239, 68, 68, 0.12);
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            color: var(--red);
-        }
 
-        /* Key Box Display */
-        .key-display-container {
-            background: var(--card2);
-            border: 1.5px dashed var(--cyan);
-            border-radius: 14px;
-            padding: 18px;
-            text-align: center;
-            margin: 12px 0 16px;
-            position: relative;
-        }
-        .key-lbl {
-            font-size: 9px;
-            color: var(--dim);
-            letter-spacing: 2px;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-        .key-val {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 24px;
-            font-weight: 900;
-            color: var(--gold);
-            letter-spacing: 3px;
-            text-shadow: 0 0 20px var(--gold-glow);
-            word-break: break-all;
-        }
-        .key-meta-grid {
+        /* Form Grid */
+        .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 12px;
-            font-size: 11px;
-            text-align: left;
+            gap: 12px;
+            margin-bottom: 14px;
         }
-        .meta-item {
-            background: rgba(255, 255, 255, 0.02);
-            padding: 8px 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
-        .meta-lbl {
-            font-size: 8px;
-            color: var(--dim);
-            font-family: 'Orbitron', sans-serif;
-            letter-spacing: 1px;
-            margin-bottom: 2px;
-        }
-        .meta-val {
+        .form-label {
+            font-size: 9px;
             font-weight: 700;
-            color: var(--text);
+            color: var(--dim);
+            letter-spacing: 1.5px;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.25s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--cyan);
+            background: rgba(0, 240, 255, 0.04);
+            box-shadow: 0 0 20px var(--cyan-glow);
         }
 
-        /* Action Buttons Grid */
-        .actions-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 12px;
-        }
+        /* Buttons */
         .act-btn {
-            padding: 12px 10px;
+            padding: 12px 18px;
             border-radius: 10px;
             border: 1.5px solid var(--border);
             background: var(--card2);
             color: #fff;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 800;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
             text-transform: uppercase;
             transition: all 0.2s;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
         }
         .act-btn.primary {
-            grid-column: span 2;
             background: linear-gradient(135deg, var(--cyan), #0066cc);
             color: #000;
             border: none;
             box-shadow: 0 4px 20px var(--cyan-glow);
-            font-size: 11px;
+            width: 100%;
+            padding: 14px;
+            font-size: 12px;
         }
         .act-btn.primary:hover {
             transform: translateY(-2px);
@@ -362,27 +329,113 @@
         .act-btn.danger {
             border-color: rgba(239, 68, 68, 0.3);
             color: var(--red);
+            padding: 6px 10px;
+            font-size: 9px;
         }
         .act-btn.danger:hover {
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.15);
             border-color: var(--red);
         }
-        .act-btn.success {
-            border-color: rgba(34, 197, 94, 0.3);
+        .act-btn.copy {
+            border-color: rgba(0, 240, 255, 0.3);
+            color: var(--cyan);
+            padding: 6px 10px;
+            font-size: 9px;
+        }
+        .act-btn.copy:hover {
+            background: rgba(0, 240, 255, 0.15);
+        }
+
+        /* Table */
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--card2);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+        }
+        thead th {
+            padding: 12px 14px;
+            font-size: 9px;
+            font-weight: 800;
+            color: var(--dim);
+            letter-spacing: 1.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.02);
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+        }
+        tbody td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text);
+            font-weight: 600;
+            vertical-align: middle;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .cust-name {
+            font-weight: 800;
+            color: #fff;
+        }
+        .cust-id {
+            font-size: 10px;
+            color: var(--dim);
+            font-family: 'Orbitron', sans-serif;
+        }
+        .key-text {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 1px;
+        }
+
+        /* Status Badges */
+        .badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 800;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            display: inline-block;
+        }
+        .badge-active {
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.4);
             color: var(--green);
         }
-        .act-btn.success:hover {
-            background: rgba(34, 197, 94, 0.1);
-            border-color: var(--green);
+        .badge-expired {
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: var(--gold);
+        }
+        .badge-revoked {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: var(--red);
         }
 
         .notify-msg {
             font-size: 11px;
             color: var(--green);
-            margin-top: 8px;
+            margin-top: 10px;
             text-align: center;
             font-weight: 700;
             min-height: 16px;
+        }
+
+        @media(max-width:600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -397,8 +450,9 @@
             <div class="lg-box">
                 <div class="lg-logo">SCUPER <span>X</span></div>
                 <div class="lg-sub">⚡ ADMIN CONTROL PANEL ⚡</div>
-                <input class="lg-input" id="adminPassInp" type="password" placeholder="ENTER ADMIN PASSWORD" autocomplete="off" spellcheck="false">
-                <button class="lg-btn" id="adminAuthBtn" onclick="doAdminLogin()">AUTHORIZE ACCESS</button>
+                <input class="lg-input" id="adminUserInp" type="text" placeholder="ADMIN USERNAME" value="admin" autocomplete="off" spellcheck="false">
+                <input class="lg-input" id="adminPassInp" type="password" placeholder="ADMIN PASSWORD" autocomplete="off" spellcheck="false">
+                <button class="lg-btn" id="adminAuthBtn" onclick="doAdminLogin()">LOGIN</button>
                 <div class="lg-err" id="adminAuthErr"></div>
             </div>
         </div>
@@ -406,55 +460,66 @@
         <!-- ════════ ADMIN DASHBOARD ════════ -->
         <div id="adminDashboard">
 
+            <!-- Top Header -->
             <div class="dash-header">
                 <div>
                     <div class="dash-title">SCUPER X ADMIN PANEL</div>
-                    <div class="dash-sub">MASTER SECURITY CONTROL</div>
+                    <div class="dash-sub">CUSTOMER-WISE UNIQUE KEY MANAGEMENT</div>
                 </div>
                 <button class="logout-btn" onclick="doAdminLogout()">LOGOUT</button>
             </div>
 
-            <!-- Active Key Card -->
+            <!-- Customer Key Generator Card -->
             <div class="panel-card">
                 <div class="card-head">
                     <div class="card-title">
-                        <span>🔑 DAILY SECURITY KEY</span>
-                    </div>
-                    <span class="badge-status badge-active" id="keyStatusBadge">● ACTIVE</span>
-                </div>
-
-                <div class="key-display-container">
-                    <div class="key-lbl">CURRENT ACTIVE KEY</div>
-                    <div class="key-val" id="currentKeyVal">LOADING...</div>
-                    <button class="act-btn" id="copyKeyBtn" style="margin: 10px auto 0; padding: 6px 16px;" onclick="copyKey()">📋 COPY KEY</button>
-                </div>
-
-                <div class="key-meta-grid">
-                    <div class="meta-item">
-                        <div class="meta-lbl">TODAY'S DATE</div>
-                        <div class="meta-val" id="todayDateVal">--</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-lbl">KEY EXPIRATION</div>
-                        <div class="meta-val" id="expiryTimeVal">23:59:59 UTC</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-lbl">CREATED AT</div>
-                        <div class="meta-val" id="createdAtVal">--</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-lbl">KEY VERSION</div>
-                        <div class="meta-val" id="keyVersionVal">v1</div>
+                        <span>➕ GENERATE UNIQUE CUSTOMER KEY</span>
                     </div>
                 </div>
 
-                <div class="actions-grid">
-                    <button class="act-btn primary" onclick="generateNewKey()">🎲 GENERATE NEW DAILY KEY</button>
-                    <button class="act-btn danger" onclick="revokeKey()">REVOKE KEY</button>
-                    <button class="act-btn success" onclick="activateKey()">ACTIVATE KEY</button>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">CUSTOMER NAME</label>
+                        <input class="form-input" id="cNameInp" type="text" placeholder="e.g. John Doe" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CUSTOMER ID / USERNAME (OPTIONAL)</label>
+                        <input class="form-input" id="cIdInp" type="text" placeholder="e.g. CUST-101" autocomplete="off">
+                    </div>
                 </div>
 
+                <button class="act-btn primary" onclick="generateCustomerKey()">🎲 GENERATE UNIQUE KEY FOR CUSTOMER</button>
                 <div class="notify-msg" id="dashNotify"></div>
+            </div>
+
+            <!-- Customer Keys Management Table Card -->
+            <div class="panel-card">
+                <div class="card-head">
+                    <div class="card-title">
+                        <span>🔑 CUSTOMER ACCESS KEYS</span>
+                    </div>
+                    <button class="act-btn copy" onclick="fetchCustomerKeys()">🔄 REFRESH KEYS</button>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>CUSTOMER</th>
+                                <th>UNIQUE KEY</th>
+                                <th>CREATED</th>
+                                <th>EXPIRATION</th>
+                                <th>STATUS</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keysTbody">
+                            <tr>
+                                <td colspan="6" style="text-align:center; padding:20px; color:var(--dim);">Loading customer keys...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         </div>
@@ -469,25 +534,28 @@
         });
 
         async function doAdminLogin() {
+            const userInp = document.getElementById('adminUserInp');
             const passInp = document.getElementById('adminPassInp');
             const err = document.getElementById('adminAuthErr');
             const btn = document.getElementById('adminAuthBtn');
 
+            const username = userInp ? userInp.value.trim() : 'admin';
             const password = passInp.value.trim();
+
             if (!password) {
-                err.textContent = '❌ Please enter admin password';
+                err.textContent = '❌ Please enter password';
                 return;
             }
 
             btn.disabled = true;
-            btn.textContent = 'AUTHORIZING...';
+            btn.textContent = 'LOGGING IN...';
             err.textContent = '';
 
             try {
                 const res = await fetch('/api/admin/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password })
+                    body: JSON.stringify({ username, password })
                 });
 
                 const data = await res.json();
@@ -498,13 +566,13 @@
                     passInp.value = '';
                     showDashboard();
                 } else {
-                    err.textContent = data.message || '❌ Invalid Admin Password';
+                    err.textContent = data.message || '❌ Invalid Credentials';
                 }
             } catch (e) {
                 err.textContent = '❌ Connection Error to Backend';
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'AUTHORIZE ACCESS';
+                btn.textContent = 'LOGIN';
             }
         }
 
@@ -520,11 +588,11 @@
             document.getElementById('adminLoginGate').classList.remove('hidden');
         }
 
-        async function fetchCurrentKey() {
+        async function fetchCustomerKeys() {
             if (!adminToken) return;
 
             try {
-                const res = await fetch('/api/admin/current-key', {
+                const res = await fetch('/api/admin/customer-keys', {
                     headers: { 'Authorization': 'Bearer ' + adminToken }
                 });
 
@@ -534,81 +602,161 @@
                 }
 
                 const data = await res.json();
-
                 if (data.success) {
-                    document.getElementById('currentKeyVal').textContent = data.key || 'SCX-NONE';
-                    document.getElementById('todayDateVal').textContent = data.date || '--';
-                    document.getElementById('expiryTimeVal').textContent = data.expiresAt || '23:59:59 UTC';
-                    document.getElementById('createdAtVal').textContent = data.createdAt || '--';
-                    document.getElementById('keyVersionVal').textContent = data.keyVersion || 'v1';
-
-                    const badge = document.getElementById('keyStatusBadge');
-                    if (data.status === 'ACTIVE') {
-                        badge.textContent = '● ACTIVE';
-                        badge.className = 'badge-status badge-active';
-                    } else {
-                        badge.textContent = '● ' + (data.status || 'REVOKED');
-                        badge.className = 'badge-status badge-revoked';
-                    }
+                    renderKeysTable(data.keys || []);
                 }
             } catch (err) {
-                console.error('Fetch key error:', err);
+                console.error('Fetch keys error:', err);
             }
         }
 
-        async function generateNewKey() {
-            showNotify('Generating new key...', 'var(--cyan)');
+        function formatDate(dateStr) {
+            if (!dateStr) return '--';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr.slice(0, 10);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
+        function renderKeysTable(keys) {
+            const tbody = document.getElementById('keysTbody');
+            if (!tbody) return;
+
+            if (keys.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--dim);">No customer keys generated yet</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = keys.map(k => {
+                const name = k.customer_name || 'General Customer';
+                const cid = k.customer_id ? `(${k.customer_id})` : '';
+                const keyStr = k.raw_key || 'SCX-XXXX-XXXX';
+                const created = k.created_at ? formatDate(k.created_at) : '--';
+                const expiry = k.expires_at ? formatDate(k.expires_at) + ' 23:59:59' : '--';
+                
+                let badgeCls = 'badge-active';
+                if (k.status === 'EXPIRED') badgeCls = 'badge-expired';
+                if (k.status === 'REVOKED') badgeCls = 'badge-revoked';
+
+                const isRevokable = k.status === 'ACTIVE';
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="cust-name">${escapeHTML(name)}</div>
+                            <div class="cust-id">${escapeHTML(cid)}</div>
+                        </td>
+                        <td><span class="key-text">${escapeHTML(keyStr)}</span></td>
+                        <td>${created}</td>
+                        <td>${expiry}</td>
+                        <td><span class="badge ${badgeCls}">● ${k.status}</span></td>
+                        <td>
+                            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                <button class="act-btn copy" onclick="copyKeyText('${escapeHTML(keyStr)}')">📋 COPY</button>
+                                ${isRevokable ? `<button class="act-btn danger" onclick="revokeCustomerKey(${k.id})">⛔ DEACTIVATE</button>` : ''}
+                                <button class="act-btn danger" style="opacity:0.7" onclick="deleteCustomerKey(${k.id})">🗑 DELETE</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function generateCustomerKey() {
+            const nameInp = document.getElementById('cNameInp');
+            const idInp = document.getElementById('cIdInp');
+
+            const customerName = nameInp.value.trim();
+            const customerId = idInp.value.trim();
+
+            if (!customerName) {
+                showNotify('❌ Please enter customer name', 'var(--red)');
+                nameInp.focus();
+                return;
+            }
+
+            showNotify('Generating unique customer key...', 'var(--cyan)');
             try {
-                const res = await fetch('/api/admin/generate-key', {
+                const res = await fetch('/api/admin/generate-customer-key', {
                     method: 'POST',
-                    headers: { 'Authorization': 'Bearer ' + adminToken }
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + adminToken 
+                    },
+                    body: JSON.stringify({ customerName, customerId })
                 });
+
                 const data = await res.json();
                 if (data.success) {
-                    showNotify('⚡ New Daily Key Activated Successfully!', 'var(--green)');
-                    fetchCurrentKey();
+                    showNotify(`⚡ Unique Key Created for ${customerName}!`, 'var(--green)');
+                    nameInp.value = '';
+                    idInp.value = '';
+                    fetchCustomerKeys();
                 } else {
                     showNotify('❌ ' + (data.message || 'Failed to generate key'), 'var(--red)');
                 }
             } catch (err) {
-                showNotify('❌ Server connection error', 'var(--red)');
+                showNotify('❌ Connection error to backend', 'var(--red)');
             }
         }
 
-        async function revokeKey() {
-            showNotify('Revoking key...', 'var(--gold)');
+        async function revokeCustomerKey(keyId) {
+            if (!confirm('Are you sure you want to revoke this customer key?')) return;
+            showNotify('Revoking customer key...', 'var(--gold)');
             try {
-                const res = await fetch('/api/admin/revoke-key', {
+                const res = await fetch('/api/admin/revoke-customer-key', {
                     method: 'POST',
-                    headers: { 'Authorization': 'Bearer ' + adminToken }
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + adminToken 
+                    },
+                    body: JSON.stringify({ keyId })
                 });
                 const data = await res.json();
                 if (data.success) {
-                    showNotify('⛔ Current Key Revoked', 'var(--red)');
-                    fetchCurrentKey();
+                    showNotify('⛔ Customer Key Revoked Successfully', 'var(--gold)');
+                    fetchCustomerKeys();
                 } else {
                     showNotify('❌ ' + (data.message || 'Failed to revoke key'), 'var(--red)');
                 }
             } catch (err) {
-                showNotify('❌ Server connection error', 'var(--red)');
+                showNotify('❌ Connection error to backend', 'var(--red)');
             }
         }
 
-        async function activateKey() {
-            generateNewKey();
+        async function deleteCustomerKey(keyId) {
+            if (!confirm('Are you sure you want to delete this customer key record permanently?')) return;
+            showNotify('Deleting key record...', 'var(--red)');
+            try {
+                const res = await fetch('/api/admin/delete-customer-key', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + adminToken 
+                    },
+                    body: JSON.stringify({ keyId })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showNotify('🗑 Key Record Deleted Permanently', 'var(--green)');
+                    fetchCustomerKeys();
+                } else {
+                    showNotify('❌ ' + (data.message || 'Failed to delete key'), 'var(--red)');
+                }
+            } catch (err) {
+                showNotify('❌ Connection error to backend', 'var(--red)');
+            }
         }
 
-        function copyKey() {
-            const keyText = document.getElementById('currentKeyVal').textContent;
-            const btn = document.getElementById('copyKeyBtn');
-
+        function copyKeyText(keyStr) {
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(keyText).then(() => {
-                    btn.textContent = '✓ COPIED!';
-                    setTimeout(() => { btn.textContent = '📋 COPY KEY'; }, 2000);
+                navigator.clipboard.writeText(keyStr).then(() => {
+                    showNotify(`📋 Copied Key: ${keyStr}`, 'var(--cyan)');
                 });
             } else {
-                alert('Key: ' + keyText);
+                alert('Customer Key: ' + keyStr);
             }
         }
 
@@ -619,10 +767,14 @@
             setTimeout(() => { if (n.textContent === msg) n.textContent = ''; }, 4000);
         }
 
+        function escapeHTML(str) {
+            return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
         function showDashboard() {
             document.getElementById('adminLoginGate').classList.add('hidden');
             document.getElementById('adminDashboard').classList.add('show');
-            fetchCurrentKey();
+            fetchCustomerKeys();
         }
 
         // Auto check token on load

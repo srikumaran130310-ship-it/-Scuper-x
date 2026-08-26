@@ -24,11 +24,10 @@ const auth = require('./auth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin@Scuper2026';
 
 app.use(express.json());
 
-// Simple cookie parser helper
+// Cookie parser middleware
 app.use((req, res, next) => {
     req.cookies = {};
     const cookieHeader = req.headers.cookie;
@@ -41,17 +40,9 @@ app.use((req, res, next) => {
     next();
 });
 
-// Initialize database & seed initial active key if none exists
+// Initialize DB & clear rate limit locks on startup
 db.initDb();
-let activeKey = db.getActiveKey();
-if (!activeKey) {
-    const initialRawKey = auth.generateSecureKey();
-    const keyHash = auth.hashString(initialRawKey);
-    const expiresAt = new Date();
-    expiresAt.setUTCHours(23, 59, 59, 999);
-    activeKey = db.createKey(initialRawKey, keyHash, expiresAt.toISOString(), 'v1');
-    console.log(`[SEED] Initialized new daily key: ${initialRawKey}`);
-}
+auth.clearAllRateLimits();
 
 // Serve Static Portals
 app.use('/user', express.static(path.join(__dirname, '../user')));
@@ -62,9 +53,14 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../user/index.html'));
 });
 
-// Admin Route: Admin Portal at /admin
-app.get('/admin', (req, res) => {
+// Admin Route: Admin Portal at /admin and /admin.html
+app.get(['/admin', '/admin.html'], (req, res) => {
     res.sendFile(path.join(__dirname, '../admin/index.html'));
+});
+
+// Root HTML fallback
+app.get('/⚡%20SCUPER%20X.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '../user/index.html'));
 });
 
 // ════════════════════════════════════════════════════
@@ -92,24 +88,23 @@ app.post('/api/auth/verify-key', (req, res) => {
     }
 
     const submittedHash = auth.hashString(key);
-    const active = db.getActiveKey();
+    const verification = db.verifyCustomerKey(submittedHash);
 
-    if (!active) {
+    if (!verification.valid) {
         auth.recordAttempt(ip);
-        return res.json({ valid: false, message: 'Invalid or expired key' });
-    }
-
-    if (active.key_hash === submittedHash) {
-        auth.resetAttempts(ip);
-        return res.json({
-            valid: true,
-            expiresAt: active.expires_at,
-            message: 'Key verified'
+        return res.json({ 
+            valid: false, 
+            message: verification.message || 'Invalid access key.' 
         });
-    } else {
-        auth.recordAttempt(ip);
-        return res.json({ valid: false, message: 'Invalid or expired key' });
     }
+
+    auth.resetAttempts(ip);
+    return res.json({
+        valid: true,
+        expiresAt: verification.expiresAt,
+        customerName: verification.customerName,
+        message: 'Key verified'
+    });
 });
 
 /**
@@ -129,7 +124,7 @@ app.post('/api/admin/login', (req, res) => {
     const { username, password } = req.body || {};
     const inputUser = username || 'admin';
 
-    if (inputUser === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    if (inputUser === ADMIN_USERNAME && auth.verifyAdminPassword(password)) {
         auth.resetAttempts(`admin_${ip}`);
         const token = auth.createAdminSession();
         
@@ -151,9 +146,68 @@ app.post('/api/admin/login', (req, res) => {
 });
 
 /**
- * 3. Fetch Current Active Key (Admin Only)
- * GET /api/admin/current-key
+ * 3. Fetch All Customer Keys (Admin Only)
+ * GET /api/admin/customer-keys
  */
+app.get('/api/admin/customer-keys', auth.adminAuthMiddleware, (req, res) => {
+    const keys = db.getAllCustomerKeys();
+    return res.json({
+        success: true,
+        keys: keys
+    });
+});
+
+/**
+ * 4. Generate Customer Unique Key (Admin Only)
+ * POST /api/admin/generate-customer-key
+ */
+app.post('/api/admin/generate-customer-key', auth.adminAuthMiddleware, (req, res) => {
+    const { customerName, customerId } = req.body || {};
+
+    const rawKey = auth.generateSecureKey();
+    const keyHash = auth.hashString(rawKey);
+
+    const expiresAt = new Date();
+    expiresAt.setUTCHours(23, 59, 59, 999);
+
+    const newRecord = db.createCustomerKey(customerName, customerId, rawKey, keyHash, expiresAt.toISOString(), 'v1');
+
+    return res.json({
+        success: true,
+        message: `Unique key created for ${newRecord.customer_name}`,
+        keyRecord: newRecord
+    });
+});
+
+/**
+ * 5. Revoke Customer Key (Admin Only)
+ * POST /api/admin/revoke-customer-key
+ */
+app.post('/api/admin/revoke-customer-key', auth.adminAuthMiddleware, (req, res) => {
+    const { keyId } = req.body || {};
+    const success = db.revokeKeyById(keyId);
+    return res.json({
+        success: success,
+        message: success ? 'Customer key revoked successfully' : 'Key record not found or already inactive'
+    });
+});
+
+/**
+ * 6. Delete Customer Key (Admin Only)
+ * POST /api/admin/delete-customer-key
+ */
+app.post('/api/admin/delete-customer-key', auth.adminAuthMiddleware, (req, res) => {
+    const { keyId } = req.body || {};
+    const success = db.deleteKeyById(keyId);
+    return res.json({
+        success: success,
+        message: success ? 'Customer key deleted successfully' : 'Key record not found'
+    });
+});
+
+// ════════════════════════════════════════════════════
+//  BACKWARD COMPATIBILITY ALIASES
+// ════════════════════════════════════════════════════
 app.get('/api/admin/current-key', auth.adminAuthMiddleware, (req, res) => {
     const active = db.getActiveKey();
     const todayStr = new Date().toISOString().split('T')[0];
@@ -181,19 +235,12 @@ app.get('/api/admin/current-key', auth.adminAuthMiddleware, (req, res) => {
     });
 });
 
-/**
- * 4. Generate New Key (Admin Only)
- * POST /api/admin/generate-key
- */
 app.post('/api/admin/generate-key', auth.adminAuthMiddleware, (req, res) => {
     const rawKey = auth.generateSecureKey();
     const keyHash = auth.hashString(rawKey);
-
     const expiresAt = new Date();
     expiresAt.setUTCHours(23, 59, 59, 999);
-
-    const newRecord = db.createKey(rawKey, keyHash, expiresAt.toISOString(), 'v1');
-
+    const newRecord = db.createCustomerKey('Quick Key', 'QUICK-1', rawKey, keyHash, expiresAt.toISOString(), 'v1');
     return res.json({
         success: true,
         message: 'New key generated and activated',
@@ -202,10 +249,6 @@ app.post('/api/admin/generate-key', auth.adminAuthMiddleware, (req, res) => {
     });
 });
 
-/**
- * 5. Revoke Key (Admin Only)
- * POST /api/admin/revoke-key
- */
 app.post('/api/admin/revoke-key', auth.adminAuthMiddleware, (req, res) => {
     const success = db.revokeActiveKey();
     return res.json({
@@ -214,10 +257,6 @@ app.post('/api/admin/revoke-key', auth.adminAuthMiddleware, (req, res) => {
     });
 });
 
-/**
- * 6. Admin Logout
- * POST /api/admin/logout
- */
 app.post('/api/admin/logout', (req, res) => {
     const token = req.adminSessionToken;
     if (token) auth.destroyAdminSession(token);
@@ -229,7 +268,7 @@ app.post('/api/admin/logout', (req, res) => {
 app.listen(PORT, () => {
     console.log(`
 ====================================================
- ⚡ SCUPER X Security & Key Management System ⚡
+ ⚡ SCUPER X Customer-Wise Key Management System ⚡
  User Portal:  http://localhost:${PORT}/
  Admin Portal: http://localhost:${PORT}/admin
 ====================================================

@@ -86,6 +86,10 @@ function resetAttempts(ip) {
     attemptsMap.delete(ip);
 }
 
+function clearAllRateLimits() {
+    attemptsMap.clear();
+}
+
 /**
  * Express Middleware for Admin Route Authorization
  */
@@ -107,6 +111,38 @@ function adminAuthMiddleware(req, res, next) {
     next();
 }
 
+/**
+ * Verifies admin password securely using SHA-256 hash comparison & timing-safe equality
+ */
+function verifyAdminPassword(inputPassword) {
+    if (!inputPassword || typeof inputPassword !== 'string') return false;
+
+    // 1. Support ADMIN_PASSWORD_HASH environment variable if set
+    const envHash = process.env.ADMIN_PASSWORD_HASH;
+    if (envHash && envHash.trim()) {
+        const inputHash = hashString(inputPassword);
+        const targetHash = envHash.trim().toLowerCase();
+        try {
+            return crypto.timingSafeEqual(Buffer.from(inputHash, 'hex'), Buffer.from(targetHash, 'hex'));
+        } catch (e) {
+            return false;
+        }
+    }
+
+    // 2. Support ADMIN_PASSWORD environment variable
+    const targetPassword = process.env.ADMIN_PASSWORD;
+    if (!targetPassword) return false;
+
+    const inputHash = hashString(inputPassword);
+    const expectedHash = hashString(targetPassword);
+
+    try {
+        return crypto.timingSafeEqual(Buffer.from(inputHash, 'hex'), Buffer.from(expectedHash, 'hex'));
+    } catch (e) {
+        return false;
+    }
+}
+
 module.exports = {
     hashString,
     generateSecureKey,
@@ -116,5 +152,7 @@ module.exports = {
     isRateLimited,
     recordAttempt,
     resetAttempts,
-    adminAuthMiddleware
+    clearAllRateLimits,
+    adminAuthMiddleware,
+    verifyAdminPassword
 };
