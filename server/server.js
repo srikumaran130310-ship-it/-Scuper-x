@@ -41,8 +41,14 @@ app.use((req, res, next) => {
 });
 
 // Initialize DB & clear rate limit locks on startup
-db.initDb();
-auth.clearAllRateLimits();
+(async () => {
+    try {
+        await db.initDb();
+        auth.clearAllRateLimits();
+    } catch (err) {
+        console.error('Database initialization error:', err);
+    }
+})();
 
 // Serve Static Portals
 app.use('/user', express.static(path.join(__dirname, '../user')));
@@ -71,7 +77,7 @@ app.get('/⚡%20SCUPER%20X.html', (req, res) => {
  * 1. User Key Verification
  * POST /api/auth/verify-key
  */
-app.post('/api/auth/verify-key', (req, res) => {
+app.post('/api/auth/verify-key', async (req, res) => {
     const ip = req.ip || req.connection.remoteAddress || '127.0.0.1';
 
     if (auth.isRateLimited(ip, 10, 15 * 60 * 1000)) {
@@ -88,7 +94,7 @@ app.post('/api/auth/verify-key', (req, res) => {
     }
 
     const submittedHash = auth.hashString(key);
-    const verification = db.verifyCustomerKey(submittedHash);
+    const verification = await db.verifyCustomerKey(submittedHash);
 
     if (!verification.valid) {
         auth.recordAttempt(ip);
@@ -149,8 +155,8 @@ app.post('/api/admin/login', (req, res) => {
  * 3. Fetch All Customer Keys (Admin Only)
  * GET /api/admin/customer-keys
  */
-app.get('/api/admin/customer-keys', auth.adminAuthMiddleware, (req, res) => {
-    const keys = db.getAllCustomerKeys();
+app.get('/api/admin/customer-keys', auth.adminAuthMiddleware, async (req, res) => {
+    const keys = await db.getAllCustomerKeys();
     return res.json({
         success: true,
         keys: keys
@@ -161,16 +167,16 @@ app.get('/api/admin/customer-keys', auth.adminAuthMiddleware, (req, res) => {
  * 4. Generate Customer Unique Key (Admin Only)
  * POST /api/admin/generate-customer-key
  */
-app.post('/api/admin/generate-customer-key', auth.adminAuthMiddleware, (req, res) => {
+app.post('/api/admin/generate-customer-key', auth.adminAuthMiddleware, async (req, res) => {
     const { customerName, customerId } = req.body || {};
 
     const rawKey = auth.generateSecureKey();
     const keyHash = auth.hashString(rawKey);
 
-    const expiresAt = new Date();
-    expiresAt.setUTCHours(23, 59, 59, 999);
+    // Default expiration: 23:59:59 IST of current day
+    const expiresAt = db.getISTEndOfDayISO();
 
-    const newRecord = db.createCustomerKey(customerName, customerId, rawKey, keyHash, expiresAt.toISOString(), 'v1');
+    const newRecord = await db.createCustomerKey(customerName, customerId, rawKey, keyHash, expiresAt, 'v1');
 
     return res.json({
         success: true,
@@ -183,9 +189,9 @@ app.post('/api/admin/generate-customer-key', auth.adminAuthMiddleware, (req, res
  * 5. Revoke Customer Key (Admin Only)
  * POST /api/admin/revoke-customer-key
  */
-app.post('/api/admin/revoke-customer-key', auth.adminAuthMiddleware, (req, res) => {
+app.post('/api/admin/revoke-customer-key', auth.adminAuthMiddleware, async (req, res) => {
     const { keyId } = req.body || {};
-    const success = db.revokeKeyById(keyId);
+    const success = await db.revokeKeyById(keyId);
     return res.json({
         success: success,
         message: success ? 'Customer key revoked successfully' : 'Key record not found or already inactive'
@@ -196,9 +202,9 @@ app.post('/api/admin/revoke-customer-key', auth.adminAuthMiddleware, (req, res) 
  * 6. Delete Customer Key (Admin Only)
  * POST /api/admin/delete-customer-key
  */
-app.post('/api/admin/delete-customer-key', auth.adminAuthMiddleware, (req, res) => {
+app.post('/api/admin/delete-customer-key', auth.adminAuthMiddleware, async (req, res) => {
     const { keyId } = req.body || {};
-    const success = db.deleteKeyById(keyId);
+    const success = await db.deleteKeyById(keyId);
     return res.json({
         success: success,
         message: success ? 'Customer key deleted successfully' : 'Key record not found'
@@ -208,8 +214,8 @@ app.post('/api/admin/delete-customer-key', auth.adminAuthMiddleware, (req, res) 
 // ════════════════════════════════════════════════════
 //  BACKWARD COMPATIBILITY ALIASES
 // ════════════════════════════════════════════════════
-app.get('/api/admin/current-key', auth.adminAuthMiddleware, (req, res) => {
-    const active = db.getActiveKey();
+app.get('/api/admin/current-key', auth.adminAuthMiddleware, async (req, res) => {
+    const active = await db.getActiveKey();
     const todayStr = new Date().toISOString().split('T')[0];
 
     if (!active) {
@@ -219,7 +225,7 @@ app.get('/api/admin/current-key', auth.adminAuthMiddleware, (req, res) => {
             date: todayStr,
             status: 'REVOKED',
             createdAt: '--',
-            expiresAt: '23:59:59 UTC',
+            expiresAt: '23:59:59 IST',
             keyVersion: 'v1'
         });
     }
@@ -230,27 +236,26 @@ app.get('/api/admin/current-key', auth.adminAuthMiddleware, (req, res) => {
         date: active.created_at ? active.created_at.split('T')[0] : todayStr,
         status: active.status,
         createdAt: active.created_at ? active.created_at.replace('T', ' ').slice(0, 19) + ' UTC' : '--',
-        expiresAt: active.expires_at ? active.expires_at.replace('T', ' ').slice(0, 19) + ' UTC' : '23:59:59 UTC',
+        expiresAt: active.expires_at ? active.expires_at : '23:59:59 IST',
         keyVersion: active.version || 'v1'
     });
 });
 
-app.post('/api/admin/generate-key', auth.adminAuthMiddleware, (req, res) => {
+app.post('/api/admin/generate-key', auth.adminAuthMiddleware, async (req, res) => {
     const rawKey = auth.generateSecureKey();
     const keyHash = auth.hashString(rawKey);
-    const expiresAt = new Date();
-    expiresAt.setUTCHours(23, 59, 59, 999);
-    const newRecord = db.createCustomerKey('Quick Key', 'QUICK-1', rawKey, keyHash, expiresAt.toISOString(), 'v1');
+    const expiresAt = db.getISTEndOfDayISO();
+    const newRecord = await db.createCustomerKey('Quick Key', 'QUICK-1', rawKey, keyHash, expiresAt, 'v1');
     return res.json({
         success: true,
         message: 'New key generated and activated',
         key: rawKey,
-        expiresAt: newRecord.expires_at.replace('T', ' ').slice(0, 19) + ' UTC'
+        expiresAt: newRecord.expires_at
     });
 });
 
-app.post('/api/admin/revoke-key', auth.adminAuthMiddleware, (req, res) => {
-    const success = db.revokeActiveKey();
+app.post('/api/admin/revoke-key', auth.adminAuthMiddleware, async (req, res) => {
+    const success = await db.revokeActiveKey();
     return res.json({
         success: true,
         message: success ? 'Current active key revoked' : 'No active key to revoke'
