@@ -2527,10 +2527,8 @@
         // ═══════════════════════════════════════════
         function copyPrediction() {
             if (!active) return;
-            const pred = active.size;
-            const predEmoji = pred === 'BIG' ? '📈🔴' : '📉🔵';
-            const t =
-                `⚡🏰 𝗪𝗜𝗡𝗚𝗢 · 𝗔𝗜 𝗣𝗥𝗘𝗗𝗜𝗖𝗧𝗢𝗥 🏯⚡\n━━━━━━━━━━━━━━━━━━━\n📅 𝗗𝘂𝗻𝗴𝗲𝗼𝗻 𝗣𝗲𝗿𝗶𝗼𝗱: ${active.period}\n${predEmoji} 𝗗𝗲𝗰𝗶𝘀𝗶𝗼𝗻: ${pred}\n🎲 𝗠𝗼𝗻𝗮𝗿𝗰 𝗖𝗼𝗿𝗲𝘀: ${active.n1}, ${active.n2}\n🎯 𝗖𝗼𝗻𝗳𝗶𝗱𝗲𝗻𝗰𝗲: ${active.conf}%\n━━━━━━━━━━━━━━━━━━━\n⚡ SYSTEM ARMED — REAL⚡`;
+            const periodLast3 = String(active.period).slice(-3);
+            const t = `${periodLast3} ${active.size} ${active.n1}/${active.n2}`;
 
             const b = document.getElementById('cpBtn');
 
