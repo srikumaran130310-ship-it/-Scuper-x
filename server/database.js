@@ -21,13 +21,15 @@ if (!fs.existsSync(DATA_DIR)) {
  * Calculates end of day ISO string in Asia/Kolkata timezone (23:59:59.999 IST)
  */
 function getISTEndOfDayISO(dateObj = new Date()) {
+    const d = (dateObj instanceof Date && !isNaN(dateObj.getTime())) ? dateObj : new Date(dateObj);
+    const validDate = isNaN(d.getTime()) ? new Date() : d;
     const formatter = new Intl.DateTimeFormat('en-US', {
         timeZone: 'Asia/Kolkata',
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
     });
-    const parts = formatter.formatToParts(dateObj);
+    const parts = formatter.formatToParts(validDate);
     let year, month, day;
     for (const part of parts) {
         if (part.type === 'year') year = part.value;
@@ -36,6 +38,34 @@ function getISTEndOfDayISO(dateObj = new Date()) {
     }
     const istEndStr = `${year}-${month}-${day}T23:59:59.999+05:30`;
     return new Date(istEndStr).toISOString();
+}
+
+/**
+ * Normalizes key expiry to 23:59:59 IST of creation day and updates status to EXPIRED if past expiry.
+ */
+function normalizeAndCheckKeyExpiry(key, now = new Date()) {
+    let modified = false;
+
+    if (!key.created_at) {
+        key.created_at = new Date().toISOString();
+        modified = true;
+    }
+
+    const expectedExpiry = getISTEndOfDayISO(key.created_at);
+    if (key.expires_at !== expectedExpiry) {
+        key.expires_at = expectedExpiry;
+        modified = true;
+    }
+
+    if (key.status === 'ACTIVE' && key.expires_at) {
+        const expiryDate = new Date(key.expires_at);
+        if (now >= expiryDate) {
+            key.status = 'EXPIRED';
+            modified = true;
+        }
+    }
+
+    return modified;
 }
 
 /**
@@ -110,14 +140,17 @@ async function initDb() {
     backupExistingData();
     const initialData = readLocalFile();
 
-    // Migration helper: Set 23:59:59 IST expiration on any key missing proper expiry
+    // Migration helper: Normalize 23:59:59 IST expiration and update expired statuses on startup
+    const now = new Date();
+    let initialModified = false;
     initialData.keys.forEach(k => {
-        if (!k.expires_at) {
-            const created = k.created_at ? new Date(k.created_at) : new Date();
-            k.expires_at = getISTEndOfDayISO(created);
+        if (normalizeAndCheckKeyExpiry(k, now)) {
+            initialModified = true;
         }
     });
-    writeLocalFile(initialData);
+    if (initialModified) {
+        writeLocalFile(initialData);
+    }
 
     const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URL;
     const pgUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
@@ -213,11 +246,9 @@ async function getAllCustomerKeys() {
         try {
             const records = await MongoModel.find({}).sort({ id: -1 }).lean();
             for (const k of records) {
-                if (k.status === 'ACTIVE' && k.expires_at) {
-                    if (now > new Date(k.expires_at)) {
-                        await MongoModel.updateOne({ id: k.id }, { status: 'EXPIRED' });
-                        k.status = 'EXPIRED';
-                    }
+                const modified = normalizeAndCheckKeyExpiry(k, now);
+                if (modified) {
+                    await MongoModel.updateOne({ id: k.id }, { expires_at: k.expires_at, status: k.status, created_at: k.created_at });
                 }
             }
             return records;
@@ -231,11 +262,9 @@ async function getAllCustomerKeys() {
             const res = await pgPool.query('SELECT * FROM customer_keys ORDER BY id DESC;');
             const records = res.rows;
             for (const k of records) {
-                if (k.status === 'ACTIVE' && k.expires_at) {
-                    if (now > new Date(k.expires_at)) {
-                        await pgPool.query('UPDATE customer_keys SET status = $1 WHERE id = $2;', ['EXPIRED', k.id]);
-                        k.status = 'EXPIRED';
-                    }
+                const modified = normalizeAndCheckKeyExpiry(k, now);
+                if (modified) {
+                    await pgPool.query('UPDATE customer_keys SET expires_at = $1, status = $2, created_at = $3 WHERE id = $4;', [k.expires_at, k.status, k.created_at, k.id]);
                 }
             }
             return records;
@@ -249,11 +278,8 @@ async function getAllCustomerKeys() {
     let modified = false;
 
     dbData.keys.forEach(k => {
-        if (k.status === 'ACTIVE' && k.expires_at) {
-            if (now > new Date(k.expires_at)) {
-                k.status = 'EXPIRED';
-                modified = true;
-            }
+        if (normalizeAndCheckKeyExpiry(k, now)) {
+            modified = true;
         }
     });
 
@@ -265,7 +291,7 @@ async function getAllCustomerKeys() {
  * Creates a unique key for a specific customer.
  * Key expires automatically at 23:59:59 IST of the day it is created.
  */
-async function createCustomerKey(customerName, customerId, rawKey, keyHash, expiresAt, version = 'v1') {
+async function createCustomerKey(customerName, customerId, rawKey, keyHash, expiresAt, version = 'v1', createdAt = null) {
     const allKeys = await getAllCustomerKeys();
     let maxId = 0;
     allKeys.forEach(k => {
@@ -276,8 +302,9 @@ async function createCustomerKey(customerName, customerId, rawKey, keyHash, expi
     const nameStr = customerName ? customerName.trim() : 'Customer';
     const idStr = customerId && customerId.trim() ? customerId.trim() : `CUST-${String(newId).padStart(3, '0')}`;
 
-    // Default expiration: 23:59:59 IST of current day
-    const finalExpiresAt = expiresAt || getISTEndOfDayISO();
+    const createdAtISO = createdAt ? new Date(createdAt).toISOString() : new Date().toISOString();
+    // Default expiration: 23:59:59 IST of creation day
+    const finalExpiresAt = expiresAt || getISTEndOfDayISO(createdAtISO);
 
     const newRecord = {
         id: newId,
@@ -285,7 +312,7 @@ async function createCustomerKey(customerName, customerId, rawKey, keyHash, expi
         customer_id: idStr,
         raw_key: rawKey,
         key_hash: keyHash,
-        created_at: new Date().toISOString(),
+        created_at: createdAtISO,
         expires_at: finalExpiresAt,
         status: 'ACTIVE',
         version: version
@@ -336,7 +363,7 @@ async function verifyCustomerKey(keyHash) {
         return { status: 'REVOKED', valid: false, message: 'Your access key has been deactivated.' };
     }
 
-    if (record.expires_at && now > new Date(record.expires_at)) {
+    if (record.expires_at && now >= new Date(record.expires_at)) {
         if (record.status === 'ACTIVE') {
             record.status = 'EXPIRED';
             await getAllCustomerKeys();

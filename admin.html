@@ -610,13 +610,22 @@
             }
         }
 
-        function formatDate(dateStr) {
+        function formatDateIST(dateStr) {
             if (!dateStr) return '--';
             const d = new Date(dateStr);
             if (isNaN(d.getTime())) return dateStr.slice(0, 10);
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const year = d.getFullYear();
+            const parts = new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Asia/Kolkata',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            }).formatToParts(d);
+            let day, month, year;
+            for (const p of parts) {
+                if (p.type === 'day') day = p.value;
+                if (p.type === 'month') month = p.value;
+                if (p.type === 'year') year = p.value;
+            }
             return `${day}-${month}-${year}`;
         }
 
@@ -633,14 +642,25 @@
                 const name = k.customer_name || 'General Customer';
                 const cid = k.customer_id ? `(${k.customer_id})` : '';
                 const keyStr = k.raw_key || 'SCX-XXXX-XXXX';
-                const created = k.created_at ? formatDate(k.created_at) : '--';
-                const expiry = k.expires_at ? formatDate(k.expires_at) + ' 23:59:59' : '--';
+                const created = k.created_at ? formatDateIST(k.created_at) : '--';
+                const expiry = k.expires_at ? formatDateIST(k.expires_at) + ' 23:59:59 IST' : '--';
                 
-                let badgeCls = 'badge-active';
-                if (k.status === 'EXPIRED') badgeCls = 'badge-expired';
-                if (k.status === 'REVOKED') badgeCls = 'badge-revoked';
+                let isExpired = k.status === 'EXPIRED';
+                if (!isExpired && k.status === 'ACTIVE' && k.expires_at && new Date() >= new Date(k.expires_at)) {
+                    isExpired = true;
+                }
 
-                const isRevokable = k.status === 'ACTIVE';
+                let badgeCls = 'badge-active';
+                let statusDisplay = k.status;
+                if (isExpired) {
+                    badgeCls = 'badge-expired';
+                    statusDisplay = 'EXPIRED';
+                } else if (k.status === 'REVOKED' || k.status === 'DEACTIVATED') {
+                    badgeCls = 'badge-revoked';
+                    statusDisplay = 'DEACTIVATED';
+                }
+
+                const isRevokable = !isExpired && k.status === 'ACTIVE';
 
                 return `
                     <tr>
@@ -651,7 +671,7 @@
                         <td><span class="key-text">${escapeHTML(keyStr)}</span></td>
                         <td>${created}</td>
                         <td>${expiry}</td>
-                        <td><span class="badge ${badgeCls}">● ${k.status}</span></td>
+                        <td><span class="badge ${badgeCls}">● ${statusDisplay}</span></td>
                         <td>
                             <div style="display:flex; gap:6px; flex-wrap:wrap;">
                                 <button class="act-btn copy" onclick="copyKeyText('${escapeHTML(keyStr)}')">📋 COPY</button>
@@ -703,8 +723,8 @@
         }
 
         async function revokeCustomerKey(keyId) {
-            if (!confirm('Are you sure you want to revoke this customer key?')) return;
-            showNotify('Revoking customer key...', 'var(--gold)');
+            if (!confirm('Are you sure you want to deactivate this customer key?')) return;
+            showNotify('Deactivating customer key...', 'var(--gold)');
             try {
                 const res = await fetch('/api/admin/revoke-customer-key', {
                     method: 'POST',
@@ -716,10 +736,10 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    showNotify('⛔ Customer Key Revoked Successfully', 'var(--gold)');
+                    showNotify('⛔ Customer Key Deactivated Successfully', 'var(--gold)');
                     fetchCustomerKeys();
                 } else {
-                    showNotify('❌ ' + (data.message || 'Failed to revoke key'), 'var(--red)');
+                    showNotify('❌ ' + (data.message || 'Failed to deactivate key'), 'var(--red)');
                 }
             } catch (err) {
                 showNotify('❌ Connection error to backend', 'var(--red)');
